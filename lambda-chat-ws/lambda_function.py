@@ -672,7 +672,7 @@ def getResponse(connectionId, jsonBody):
     
     logger.info("Start chat: %s.", json.dumps(jsonBody))
     
-    global map_chain, memory_chain
+    global map_chain, memory_chain, selected_LLM
     
     # Multi-LLM
     profile = profile_of_LLMs[selected_LLM]
