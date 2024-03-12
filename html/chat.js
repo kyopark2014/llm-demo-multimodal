@@ -785,7 +785,8 @@ function deleteItems(userId) {
 
 // Camera
 const startButton = document.querySelector(".start-button");
-const imageButton = document.querySelector(".image-button");
+const previewButton = document.querySelector(".preview-button");
+const emotionButton = document.querySelector(".emotion-button");
 const playButton = document.querySelector(".play-button");
 
 //event
@@ -814,21 +815,6 @@ function videoStart() {
             previewPlayer.srcObject = stream;
 
             console.log('video started!')
-
-            // use MediaStream Recording API
-            const recorder = new MediaRecorder(stream);
-
-            // fires every one second and passes an BlobEvent
-            recorder.ondataavailable = event => {
-
-                // get the Blob from the event
-                const blob = event.data;
-
-                // and send that blob to the server...
-            };
-
-            // make data available event fire every one second
-            recorder.start(1000);
         })
 }
 
