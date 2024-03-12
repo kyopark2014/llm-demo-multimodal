@@ -790,7 +790,7 @@ const playButton = document.querySelector(".play-button");
 
 //event
 startButton.addEventListener("click", videoStart);
-imageButton.addEventListener("click", emotion);
+emotionButton.addEventListener("click", emotion);
 playButton.addEventListener("click", playSpeech);
 
 let audio_file = "";
