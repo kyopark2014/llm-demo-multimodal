@@ -490,6 +490,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(60),
       role: roleLambda,
       environment: {
+        profile_of_LLMs:JSON.stringify(profile_of_LLMs),
       }
     });     
   

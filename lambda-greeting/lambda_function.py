@@ -5,6 +5,7 @@ import re
 import base64
 import boto3
 import uuid
+import json
 
 from botocore.config import Config
 from PIL import Image
@@ -29,20 +30,7 @@ HUMAN_PROMPT = "\n\nHuman:"
 AI_PROMPT = "\n\nAssistant:"
 
 selected_LLM = 0
-profile_of_LLMs = [
-    {
-        "bedrock_region": "us-west-2", # Oregon
-        "model_type": "claude3",
-        "model_id": "anthropic.claude-3-sonnet-20240229-v1:0",   
-        "maxOutputTokens": "8196"
-    },
-    {
-        "bedrock_region": "us-east-1", # N.Virginia
-        "model_type": "claude3",
-        "model_id": "anthropic.claude-3-sonnet-20240229-v1:0",
-        "maxOutputTokens": "8196"
-    }
-]
+profile_of_LLMs = json.loads(os.environ.get('profile_of_LLMs'))
 
 def get_chat(profile_of_LLMs, selected_LLM):
     profile = profile_of_LLMs[selected_LLM]
