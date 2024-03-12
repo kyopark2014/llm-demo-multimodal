@@ -17,7 +17,7 @@ const debug = false;
 const stage = 'dev';
 const s3_prefix = 'docs';
 const model_id = "anthropic.claude-3-sonnet-20240229-v1:0"; 
-const projectName = `stream-chatbot`; 
+const projectName = `demo-multimodal`; 
 
 const bucketName = `storage-for-${projectName}-${region}`; 
 const bedrock_region = "us-east-1";  // "us-east-1" "us-west-2" 
@@ -465,7 +465,6 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       role: roleLambdaWebsocket,
       environment: {
         bedrock_region: bedrock_region,
-        model_id: model_id,
         s3_bucket: s3Bucket.bucketName,
         s3_prefix: s3_prefix,
         path: 'https://'+distribution.domainName+'/',   

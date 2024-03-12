@@ -24,16 +24,11 @@ from langchain_community.embeddings import BedrockEmbeddings
 
 import logging
 
-logger = logging.getLogger('chat-ws')
-logging.basicConfig(level=logging.DEBUG, format="%(levelname)s: %(message)s")  # DEBUG<INFO<WARNING<ERROR<CRITICAL
-
 s3 = boto3.client('s3')
 s3_bucket = os.environ.get('s3_bucket') # bucket name
 s3_prefix = os.environ.get('s3_prefix')
 callLogTableName = os.environ.get('callLogTableName')
 bedrock_region = os.environ.get('bedrock_region', 'us-west-2')
-modelId = os.environ.get('model_id', 'amazon.titan-tg1-large')
-print('model_id[:9]: ', modelId[:9])
 path = os.environ.get('path')
 doc_prefix = s3_prefix+'/'
 
@@ -670,9 +665,6 @@ def getResponse(connectionId, jsonBody):
     convType = jsonBody['convType']
     print('convType: ', convType)
     
-    logger.info("Start chat: %s", json.dumps(jsonBody))
-    logger.debug("Start chat: %s", json.dumps(jsonBody))
-    
     global map_chain, memory_chain, selected_LLM
     
     # Multi-LLM
@@ -753,8 +745,6 @@ def getResponse(connectionId, jsonBody):
                 memory_chain.chat_memory.add_user_message(text)
                 memory_chain.chat_memory.add_ai_message(msg)
                 
-                logger.info("End chat: %s.", msg)
-                                        
         elif type == 'document':
             isTyping(connectionId, requestId)
             
