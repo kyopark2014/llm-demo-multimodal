@@ -130,6 +130,9 @@ def lambda_handler(event, context):
     print(event)
     
     image_content = event["body"]    
+    
+    start_time_for_greeting = time.time()
+    
     img = Image.open(BytesIO(base64.b64decode(image_content)))
     
     width, height = img.size 
@@ -155,10 +158,14 @@ def lambda_handler(event, context):
     msg = generate_greeting_message(chat, img_base64, query)     
     print('greeting msg: ', msg)  
     
+    end_time_for_greeting = time.time()
+    time_for_greeting = end_time_for_greeting - start_time_for_greeting
+    
     return {
         "isBase64Encoded": False,
         'statusCode': 200,
-        'body': json.dumps({
-            "msg": msg
+        'body': json.dumps({            
+            "msg": msg,
+            "time_taken": str(time_for_greeting)
         })
     }
