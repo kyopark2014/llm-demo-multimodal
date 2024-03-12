@@ -154,7 +154,13 @@ def lambda_handler(event, context):
     
     # creating greeting message
     chat = get_chat(profile_of_LLMs, selected_LLM)    
-    query = "그림에 있는 사람이 기분 좋아지는 멋진 인사말을 해주세요."
+    query = """<example> tag에 있는 예를 참조하여 그림에 있는 사람이 기분 좋아지는 멋진 인사말을 해주세요.
+    <example>
+    안녕. 너는 멋진 옷을 입고 왔구나.
+    안녕. 기분 좋지 않은일이 있니? 그래도 힘내도 오늘 멋지게 데모를 즐기자.
+    하이, 정말 멋진 날이지? 반가워!
+    </example>
+    """
     msg = generate_greeting_message(chat, img_base64, query)     
     print('greeting msg: ', msg)  
     
