@@ -19,8 +19,6 @@ from langchain_core.prompts import MessagesPlaceholder, ChatPromptTemplate
 from langchain_core.messages import HumanMessage, SystemMessage
 
 bucket = os.environ.get('s3_bucket') # bucket name
-s3_prefix = os.environ.get('s3_prefix')
-historyTableName = os.environ.get('historyTableName')
 speech_prefix = 'speech/'
 
 s3 = boto3.client('s3')
@@ -129,7 +127,7 @@ def extract_text(chat, img_base64):
     return extracted_text
     
 def lambda_handler(event, context):
-    # print(event)
+    print(event)
     
     image_content = event["body"]    
     img = Image.open(BytesIO(base64.b64decode(image_content)))

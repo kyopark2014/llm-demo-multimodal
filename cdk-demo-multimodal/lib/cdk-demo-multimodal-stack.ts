@@ -201,7 +201,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       description: 'API Gateway for chatbot',
       endpointTypes: [apiGateway.EndpointType.REGIONAL],
       restApiName: 'rest-api-for-'+projectName,      
-      binaryMediaTypes: ['application/pdf', 'text/plain', 'text/csv'], 
+      binaryMediaTypes: ['application/pdf', 'text/plain', 'text/csv', 'image/png', 'image/jpeg'], 
       deployOptions: {
         stageName: stage,
 
@@ -490,6 +490,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(60),
       role: roleLambda,
       environment: {
+        s3_bucket: bucketName,
         profile_of_LLMs:JSON.stringify(profile_of_LLMs),
       }
     });     
