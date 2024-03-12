@@ -851,11 +851,11 @@ function makeGreetingMessage() {
 
     xhr.onreadystatechange = () => {
         if (xhr.readyState === 4 && xhr.status === 200) {
-            let msg = xhr.responseText;            
-            console.log("msg: " + msg);
+            let result = JSON.parse(xhr.responseText);
+            console.log("result: " + result);
 
             requestId = uuidv4();
-            addReceivedMessage(requestId, msg);   
+            addReceivedMessage(requestId, result.msg);   
         }
         else {
             console.log("response: " + xhr.responseText);

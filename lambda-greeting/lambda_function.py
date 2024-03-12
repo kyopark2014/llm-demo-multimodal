@@ -154,9 +154,11 @@ def lambda_handler(event, context):
     query = "그림에 있는 사람이 기분 좋아지는 멋진 인사말을 해주세요."
     msg = generate_greeting_message(chat, img_base64, query)     
     print('greeting msg: ', msg)  
-
+    
     return {
         "isBase64Encoded": False,
         'statusCode': 200,
-        'body': msg
+        'body': json.dumps({
+            "msg": msg
+        })
     }

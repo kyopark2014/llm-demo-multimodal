@@ -675,7 +675,6 @@ def getResponse(connectionId, jsonBody):
     
     chat = get_chat(profile_of_LLMs, selected_LLM)    
     bedrock_embedding = get_embedding(profile_of_LLMs, selected_LLM)
-    
     # create memory
     if userId in map_chain:  
         print('memory exist. reuse it!')        
