@@ -12,3 +12,5 @@ chunk_size_in_bytes = chunk_duration_in_millisecond / 1000 * audio_sample_rate *
 
 
 [Amazon Transcribe API](
+
+[Amazon Transcribe Streaming SDK](https://github.com/awslabs/amazon-transcribe-streaming-sdk)
