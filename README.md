@@ -9,6 +9,7 @@ chunk_size_in_bytes = chunk_duration_in_millisecond / 1000 * audio_sample_rate *
 ```
 
 
+[StartStreamTranscription](https://docs.aws.amazon.com/transcribe/latest/APIReference/API_streaming_StartStreamTranscription.html)
 
 
 [Amazon Transcribe API](
