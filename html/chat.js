@@ -790,7 +790,7 @@ const playButton = document.querySelector(".play-button");
 
 //event
 startButton.addEventListener("click", videoStart);
-imageButton.addEventListener("click", greeting);
+imageButton.addEventListener("click", emotion);
 playButton.addEventListener("click", playSpeech);
 
 let audio_file = "";
@@ -847,11 +847,11 @@ function preview() {
     }, 'image/png');
 }
 
-function greeting() {
+function emotion() {
     canvas.getContext('2d').drawImage(previewPlayer, 0, 0, canvas.width, canvas.height);
     drawingIndex = 0;
 
-    console.log('event for greeting');
+    console.log('event for emotion');
 
     //getEmotion();
     makeGreetingMessage();
@@ -876,7 +876,10 @@ function makeGreetingMessage() {
         }
     };
     
+    // console.log('uuid: ', uuid);
+
     canvas.toBlob(function (blob) {
+        // var blob = new Blob([JSON.stringify(requestObj)], {type: 'application/json'});
         xhr.send(blob);
     }, {type: 'image/png'});
 }
