@@ -786,12 +786,12 @@ function deleteItems(userId) {
 // Camera
 const startButton = document.querySelector(".start-button");
 const previewButton = document.querySelector(".preview-button");
-const emotionButton = document.querySelector(".emotion-button");
+const imageButton = document.querySelector(".image-button");
 const playButton = document.querySelector(".play-button");
 
 //event
 startButton.addEventListener("click", videoStart);
-emotionButton.addEventListener("click", emotion);
+imageButton.addEventListener("click", greeting);
 playButton.addEventListener("click", playSpeech);
 
 let audio_file = "";
@@ -844,11 +844,11 @@ function preview() {
     }, 'image/png');
 }
 
-function emotion() {
+function greeting() {
     canvas.getContext('2d').drawImage(previewPlayer, 0, 0, canvas.width, canvas.height);
     drawingIndex = 0;
 
-    console.log('event for emotion');
+    console.log('event for greeting');
 
     //getEmotion();
     makeGreetingMessage();
