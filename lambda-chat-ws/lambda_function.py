@@ -670,7 +670,8 @@ def getResponse(connectionId, jsonBody):
     convType = jsonBody['convType']
     print('convType: ', convType)
     
-    logger.info("Start chat: %s.", json.dumps(jsonBody))
+    logger.info("Start chat: %s", json.dumps(jsonBody))
+    logger.debug("Start chat: %s", json.dumps(jsonBody))
     
     global map_chain, memory_chain, selected_LLM
     
