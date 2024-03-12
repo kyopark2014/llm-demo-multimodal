@@ -20,6 +20,7 @@ from langchain_community.chat_models import BedrockChat
 from langchain_core.prompts import MessagesPlaceholder, ChatPromptTemplate
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.memory import ConversationBufferWindowMemory
+from langchain_community.embeddings import BedrockEmbeddings
 
 s3 = boto3.client('s3')
 s3_bucket = os.environ.get('s3_bucket') # bucket name
@@ -30,50 +31,78 @@ modelId = os.environ.get('model_id', 'amazon.titan-tg1-large')
 print('model_id[:9]: ', modelId[:9])
 path = os.environ.get('path')
 doc_prefix = s3_prefix+'/'
+
+profile_of_LLMs = json.loads(os.environ.get('profile_of_LLMs'))
    
 # websocket
 connection_url = os.environ.get('connection_url')
 client = boto3.client('apigatewaymanagementapi', endpoint_url=connection_url)
 print('connection_url: ', connection_url)
 
-# bedrock   
-boto3_bedrock = boto3.client(
-    service_name='bedrock-runtime',
-    region_name=bedrock_region,
-    config=Config(
-        retries = {
-            'max_attempts': 30
-        }            
-    )
-)
-
 HUMAN_PROMPT = "\n\nHuman:"
 AI_PROMPT = "\n\nAssistant:"
-def get_parameter(modelId):
-    if modelId == 'amazon.titan-tg1-large' or modelId == 'amazon.titan-tg1-xlarge': 
-        return {
-            "maxTokenCount":1024,
-            "stopSequences":[],
-            "temperature":0,
-            "topP":0.9
-        }
-    elif modelId[:9] == 'anthropic':
-        return {
-            "max_tokens":1024,
-            "temperature":0.1,
-            "top_k":250,
-            "top_p": 0.9,
-            "stop_sequences": [HUMAN_PROMPT]            
-        }
-parameters = get_parameter(modelId)
 
-chat = BedrockChat(
-    model_id=modelId,
-    client=boto3_bedrock, 
-    streaming=True,
-    callbacks=[StreamingStdOutCallbackHandler()],
-    model_kwargs=parameters,
-)  
+# Multi-LLM
+def get_chat(profile_of_LLMs, selected_LLM):
+    profile = profile_of_LLMs[selected_LLM]
+    bedrock_region =  profile['bedrock_region']
+    modelId = profile['model_id']
+    print(f'LLM: {selected_LLM}, bedrock_region: {bedrock_region}, modelId: {modelId}')
+    maxOutputTokens = int(profile['maxOutputTokens'])
+                          
+    # bedrock   
+    boto3_bedrock = boto3.client(
+        service_name='bedrock-runtime',
+        region_name=bedrock_region,
+        config=Config(
+            retries = {
+                'max_attempts': 30
+            }            
+        )
+    )
+    parameters = {
+        "max_tokens":maxOutputTokens,     
+        "temperature":0.1,
+        "top_k":250,
+        "top_p":0.9,
+        "stop_sequences": [HUMAN_PROMPT]
+    }
+    # print('parameters: ', parameters)
+
+    chat = BedrockChat(
+        model_id=modelId,
+        client=boto3_bedrock, 
+        streaming=True,
+        callbacks=[StreamingStdOutCallbackHandler()],
+        model_kwargs=parameters,
+    )        
+    
+    return chat
+
+def get_embedding(profile_of_LLMs, selected_LLM):
+    profile = profile_of_LLMs[selected_LLM]
+    bedrock_region =  profile['bedrock_region']
+    modelId = profile['model_id']
+    print(f'Embedding: {selected_LLM}, bedrock_region: {bedrock_region}, modelId: {modelId}')
+    
+    # bedrock   
+    boto3_bedrock = boto3.client(
+        service_name='bedrock-runtime',
+        region_name=bedrock_region,
+        config=Config(
+            retries = {
+                'max_attempts': 30
+            }            
+        )
+    )
+    
+    bedrock_embedding = BedrockEmbeddings(
+        client=boto3_bedrock,
+        region_name = bedrock_region,
+        model_id = 'amazon.titan-embed-text-v1' 
+    )  
+    
+    return bedrock_embedding
 
 map_chain = dict() 
 MSG_LENGTH = 100
@@ -636,7 +665,17 @@ def getResponse(connectionId, jsonBody):
     print('convType: ', convType)
     
     global map_chain, memory_chain
-
+    
+    # Multi-LLM
+    profile = profile_of_LLMs[selected_LLM]
+    bedrock_region =  profile['bedrock_region']
+    modelId = profile['model_id']
+    print(f'selected_LLM: {selected_LLM}, bedrock_region: {bedrock_region}, modelId: {modelId}')
+    # print('profile: ', profile)
+    
+    chat = get_chat(profile_of_LLMs, selected_LLM)    
+    bedrock_embedding = get_embedding(profile_of_LLMs, selected_LLM)
+    
     # create memory
     if userId in map_chain:  
         print('memory exist. reuse it!')        
@@ -770,6 +809,11 @@ def getResponse(connectionId, jsonBody):
             raise Exception ("Not able to write into dynamodb")               
         #print('resp, ', resp)
 
+    if selected_LLM >= len(profile_of_LLMs)-1:
+        selected_LLM = 0
+    else:
+        selected_LLM = selected_LLM + 1
+        
     return msg
 
 def lambda_handler(event, context):
