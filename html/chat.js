@@ -852,7 +852,7 @@ function makeGreetingMessage() {
     xhr.onreadystatechange = () => {
         if (xhr.readyState === 4 && xhr.status === 200) {
             let result = JSON.parse(xhr.responseText);
-            console.log("result: " + result);
+            console.log("result: " + JSON.stringify(result));
 
             requestId = uuidv4();
             addReceivedMessage(requestId, result.msg);   
