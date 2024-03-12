@@ -800,8 +800,9 @@ let canvas = document.getElementById('canvas');
 canvas.width = previewPlayer.width;
 canvas.height = previewPlayer.height;
 
+let count = 0;
 function videoStart() {    
-    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         .then(stream => {
             previewPlayer.srcObject = stream;
 
@@ -812,7 +813,8 @@ function videoStart() {
             recorder.ondataavailable = event => {   // fires every one second and passes an BlobEvent
                 const blob = event.data;  // get the Blob from the event
 
-                console.log('recored event!')
+                console.log('recored event #', count);
+                count = count + 1;
 
                 // and send that blob to the server...
             };            
