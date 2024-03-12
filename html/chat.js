@@ -782,11 +782,7 @@ function deleteItems(userId) {
 
 
 // Camaera UI
-
-
-
 let audio_file = "";
-
 let previewlist = [];
 let fileList = [];
 const maxImgItems = 1;
@@ -866,10 +862,7 @@ function makeGreetingMessage() {
         }
     };
     
-    // console.log('uuid: ', uuid);
-
     canvas.toBlob(function (blob) {
-        // var blob = new Blob([JSON.stringify(requestObj)], {type: 'application/json'});
         xhr.send(blob);
     }, {type: 'image/png'});
 }

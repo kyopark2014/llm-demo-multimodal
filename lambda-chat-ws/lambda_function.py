@@ -22,6 +22,10 @@ from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.memory import ConversationBufferWindowMemory
 from langchain_community.embeddings import BedrockEmbeddings
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 s3 = boto3.client('s3')
 s3_bucket = os.environ.get('s3_bucket') # bucket name
 s3_prefix = os.environ.get('s3_prefix')
@@ -664,6 +668,8 @@ def getResponse(connectionId, jsonBody):
     convType = jsonBody['convType']
     print('convType: ', convType)
     
+    logger.info("Start chat: %s.", json.dumps(jsonBody))
+    
     global map_chain, memory_chain
     
     # Multi-LLM
@@ -743,6 +749,8 @@ def getResponse(connectionId, jsonBody):
                     
                 memory_chain.chat_memory.add_user_message(text)
                 memory_chain.chat_memory.add_ai_message(msg)
+                
+                logger.info("End chat: %s.", msg)
                                         
         elif type == 'document':
             isTyping(connectionId, requestId)
