@@ -807,8 +807,8 @@ function videoStart() {
 
             console.log('video started!')
 
-                        // use MediaStream Recording API
-       /*     const recorder = new MediaRecorder(stream);
+            // use MediaStream Recording API
+            const recorder = new MediaRecorder(stream);
             recorder.ondataavailable = event => {   // fires every one second and passes an BlobEvent
                 const blob = event.data;  // get the Blob from the event
 
@@ -816,7 +816,7 @@ function videoStart() {
 
                 // and send that blob to the server...
             };            
-            recorder.start(1000); // make data available event fire every one second */
+            recorder.start(1000); // make data available event fire every one second 
         })
 }
 
