@@ -25,6 +25,7 @@ from langchain_community.embeddings import BedrockEmbeddings
 import logging
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 s3 = boto3.client('s3')
 s3_bucket = os.environ.get('s3_bucket') # bucket name
@@ -37,6 +38,7 @@ path = os.environ.get('path')
 doc_prefix = s3_prefix+'/'
 
 profile_of_LLMs = json.loads(os.environ.get('profile_of_LLMs'))
+selected_LLM = 0
    
 # websocket
 connection_url = os.environ.get('connection_url')
