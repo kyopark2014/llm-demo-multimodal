@@ -24,7 +24,7 @@ from langchain_community.embeddings import BedrockEmbeddings
 
 import logging
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('chat-ws')
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s: %(message)s")  # DEBUG<INFO<WARNING<ERROR<CRITICAL
 
 s3 = boto3.client('s3')
