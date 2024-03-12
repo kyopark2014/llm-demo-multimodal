@@ -783,16 +783,7 @@ function deleteItems(userId) {
 
 // Camaera UI
 
-// Camera
-const startButton = document.querySelector(".start-button");
-const previewButton = document.querySelector(".preview-button");
-const imageButton = document.querySelector(".image-button");
-const playButton = document.querySelector(".play-button");
 
-//event
-startButton.addEventListener("click", videoStart);
-imageButton.addEventListener("click", greeting);
-playButton.addEventListener("click", playSpeech);
 
 let audio_file = "";
 
@@ -854,7 +845,16 @@ function greeting() {
     makeGreetingMessage();
 }
 
+// Camera
+const startButton = document.querySelector(".start-button");
+const previewButton = document.querySelector(".preview-button");
+const imageButton = document.querySelector(".image-button");
+const playButton = document.querySelector(".play-button");
 
+//event
+startButton.addEventListener("click", videoStart);
+imageButton.addEventListener("click", greeting);
+playButton.addEventListener("click", playSpeech);
 
 function makeGreetingMessage() {
     const uri = "greeting";
