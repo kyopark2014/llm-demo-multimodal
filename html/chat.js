@@ -785,13 +785,12 @@ function deleteItems(userId) {
 
 // Camera
 const startButton = document.querySelector(".start-button");
-const previewButton = document.querySelector(".preview-button");
-const emotionButton = document.querySelector(".emotion-button");
+const imageButton = document.querySelector(".image-button");
 const playButton = document.querySelector(".play-button");
 
 //event
 startButton.addEventListener("click", videoStart);
-emotionButton.addEventListener("click", emotion);
+imageButton.addEventListener("click", greeting);
 playButton.addEventListener("click", playSpeech);
 
 let audio_file = "";
@@ -809,35 +808,33 @@ let canvas = document.getElementById('canvas');
 canvas.width = previewPlayer.width;
 canvas.height = previewPlayer.height;
 
+
+
 function videoStart() {    
-    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         .then(stream => {
             previewPlayer.srcObject = stream;
 
             console.log('video started!')
+
+            // use MediaStream Recording API
+            const recorder = new MediaRecorder(stream);
+            recorder.ondataavailable = event => {   // fires every one second and passes an BlobEvent
+                const blob = event.data;  // get the Blob from the event
+
+                console.log('recored event!')
+
+                // and send that blob to the server...
+            };            
+            recorder.start(1000); // make data available event fire every one second
         })
 }
 
-function preview() {
-    canvas.getContext('2d').drawImage(previewPlayer, 0, 0, canvas.width, canvas.height);
-
-    canvas.toBlob(function (blob) {
-        const img = new Image();
-        img.src = URL.createObjectURL(blob);
-
-        console.log(blob);
-
-        // downloadButton.href=img.src;
-        // console.log(downloadButton.href);
-        // downloadButton.download =`capture_${new Date()}.jpeg`; 
-    }, 'image/png');
-}
-
-function emotion() {
+function greeting() {
     canvas.getContext('2d').drawImage(previewPlayer, 0, 0, canvas.width, canvas.height);
     drawingIndex = 0;
 
-    console.log('event for emotion');
+    console.log('event for greeting');
 
     //getEmotion();
     makeGreetingMessage();
@@ -862,13 +859,27 @@ function makeGreetingMessage() {
         }
     };
     
-    // console.log('uuid: ', uuid);
-
     canvas.toBlob(function (blob) {
-        // var blob = new Blob([JSON.stringify(requestObj)], {type: 'application/json'});
         xhr.send(blob);
     }, {type: 'image/png'});
 }
+
+
+function preview() {
+    canvas.getContext('2d').drawImage(previewPlayer, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob(function (blob) {
+        const img = new Image();
+        img.src = URL.createObjectURL(blob);
+
+        console.log(blob);
+
+        // downloadButton.href=img.src;
+        // console.log(downloadButton.href);
+        // downloadButton.download =`capture_${new Date()}.jpeg`; 
+    }, 'image/png');
+}
+
 
 function getEmotion() {
     // const uri = cloudfrntUrl + "emotion";
