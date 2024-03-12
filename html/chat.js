@@ -808,8 +808,6 @@ let canvas = document.getElementById('canvas');
 canvas.width = previewPlayer.width;
 canvas.height = previewPlayer.height;
 
-
-
 function videoStart() {    
     navigator.mediaDevices.getUserMedia({ video: true, audio: false })
         .then(stream => {
@@ -818,16 +816,35 @@ function videoStart() {
             console.log('video started!')
 
             // use MediaStream Recording API
-       /*     const recorder = new MediaRecorder(stream);
-            recorder.ondataavailable = event => {   // fires every one second and passes an BlobEvent
-                const blob = event.data;  // get the Blob from the event
+            const recorder = new MediaRecorder(stream);
 
-                console.log('recored event!')
+            // fires every one second and passes an BlobEvent
+            recorder.ondataavailable = event => {
+
+                // get the Blob from the event
+                const blob = event.data;
 
                 // and send that blob to the server...
-            };            
-            recorder.start(1000); // make data available event fire every one second */
+            };
+
+            // make data available event fire every one second
+            recorder.start(1000);
         })
+}
+
+function preview() {
+    canvas.getContext('2d').drawImage(previewPlayer, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob(function (blob) {
+        const img = new Image();
+        img.src = URL.createObjectURL(blob);
+
+        console.log(blob);
+
+        // downloadButton.href=img.src;
+        // console.log(downloadButton.href);
+        // downloadButton.download =`capture_${new Date()}.jpeg`; 
+    }, 'image/png');
 }
 
 function greeting() {
@@ -863,23 +880,6 @@ function makeGreetingMessage() {
         xhr.send(blob);
     }, {type: 'image/png'});
 }
-
-
-function preview() {
-    canvas.getContext('2d').drawImage(previewPlayer, 0, 0, canvas.width, canvas.height);
-
-    canvas.toBlob(function (blob) {
-        const img = new Image();
-        img.src = URL.createObjectURL(blob);
-
-        console.log(blob);
-
-        // downloadButton.href=img.src;
-        // console.log(downloadButton.href);
-        // downloadButton.download =`capture_${new Date()}.jpeg`; 
-    }, 'image/png');
-}
-
 
 function getEmotion() {
     // const uri = cloudfrntUrl + "emotion";
