@@ -1056,7 +1056,7 @@ def getResponse(connectionId, jsonBody):
                 img.save(buffer, format="PNG")
                 img_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
                 
-                if commend in jsonBody:
+                if 'commend' in jsonBody:
                     commend  = jsonBody['commend']
                 else:
                     commend = ""
