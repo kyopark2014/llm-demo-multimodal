@@ -144,9 +144,8 @@ function connect(endpoint, type) {
                 addReceivedMessage(response.request_id, response.msg);  
 
                 if (action == 'general') {
-                    console.log('start action: ', action)
-    
-                    action = response.action  
+                    action = response.action                      
+                    console.log('start action: ', action)                    
                     do_action(action)
                 }
                 else {
