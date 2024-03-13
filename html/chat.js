@@ -217,15 +217,16 @@ function do_action(action) {
     else if(action == 'gesture')
         gesture();
     else 
-        greeting();
-    
+        greeting();    
     clear_timer();
 
-    tm_action = setTimeout(function () {
-        console.log('action agin');            
-        do_action(action)
-
-    }, 6000);
+    if(action != general) {
+        tm_action = setTimeout(function () {
+            console.log('action agin');            
+            do_action(action)
+    
+        }, 6000);
+    }    
 }
 function clear_timer() {
     console.log('clear action: ', action);   
