@@ -220,7 +220,7 @@ function do_action(action) {
         greeting();    
     clear_timer();
 
-    if(action != general) {
+    if(action != 'general') {
         tm_action = setTimeout(function () {
             console.log('action agin');            
             do_action(action)
