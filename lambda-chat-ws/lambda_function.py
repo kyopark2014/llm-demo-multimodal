@@ -668,8 +668,9 @@ intents = [
 def search_intent(chat, intents, query):
     context = ""
     for i, intent in enumerate(intents):
-        context += f'{i+1}: {intent['action']}\n'
-        
+        idx = i+1
+        context += f"{idx}: {intent['action']}\n"
+    
     system = (
         """다음의 <context> tag의 예제에서 질문과 가장 가까운 항목을 선택해 주세요.
             
@@ -743,8 +744,11 @@ def initiate_intent_search(intents):
 def getResponse(connectionId, jsonBody):
     print('jsonBody: ', jsonBody)
     
+    # LLM search
     messge = search_intent(chat, intents, "나 퀴즈하고 싶어")
     print('intent search: ', messge)
+    
+    # similarity search
     initiate_intent_search(intents)
     
     userId  = jsonBody['user_id']
