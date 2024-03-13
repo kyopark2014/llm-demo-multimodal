@@ -902,7 +902,7 @@ def getResponse(connectionId, jsonBody):
     
     # load action of an user
     if userId in action_dict:
-        print(f'the action of {userId}: {action_dict['userId']}')
+        print("Action: ", action_dict['userId'])
     else:
         print('There is no action which is previously defined')
         action_dict['userId'] = 'general'
