@@ -697,23 +697,22 @@ def search_intent(chat, intents, query):
         output = result.content        
         output_without_tag = output[output.find('<result>')+8:len(output)-9] # remove <result> 
         
-        output = output_without_tag[output_without_tag.find(':')+1:]
+        output = output_without_tag[output_without_tag.find(':')+2:]
         print('output: ', output)
         
         for intent in intents:
             if intent['action'] == output:
-                msg = intent['message']
-                break
+                print('result of intent search: ', json.dumps(intent))
+                return True, intent
         
-        print('result of intent search: ', msg)
     except Exception:
         err_msg = traceback.format_exc()
         print('error message: ', err_msg)                    
         raise Exception ("Not able to request to LLM")
     
-    return msg
+    return False, {}
 
-def initiate_intent_search(intents):
+def initiate_intent_search(intents, query):
     global vectorstore
         
     embedding = get_embedding(profile_of_LLMs, selected_LLM)
@@ -734,7 +733,6 @@ def initiate_intent_search(intents):
             embedding  # embeddings            
         )
         
-    query = "퀴즈해"
     top_k = 3
     rel_documents = vectorstore.similarity_search_with_score(
         query=query,
@@ -747,7 +745,7 @@ def initiate_intent_search(intents):
         id = document[0].metadata['id']
         message = document[0].metadata['message']
         action = document[0].page_content
-        print(f"{id}: {message}: {action}")
+        print(f"similarity search: {id}: {message}: {action}")
 
 def getResponse(connectionId, jsonBody):
     print('jsonBody: ', jsonBody)
@@ -775,17 +773,18 @@ def getResponse(connectionId, jsonBody):
     # print('profile: ', profile)
     
     chat = get_chat(profile_of_LLMs, selected_LLM)    
-    bedrock_embedding = get_embedding(profile_of_LLMs, selected_LLM)
+    # bedrock_embedding = get_embedding(profile_of_LLMs, selected_LLM)
     
-    # Intent Search
-    # LLM search
-    messge = search_intent(chat, intents, "나 퀴즈하고 싶어")
-    print('intent search: ', messge)
-    
-    # similarity search
-    initiate_intent_search(intents)
-    
-    
+    if type == 'text':
+        # Intent Search
+        # LLM search
+        result, intent = search_intent(chat, intents, "나 퀴즈하고 싶어")
+        if result:
+            msg = intent['message']
+            print('Intent: ', msg)
+        
+        # similarity search
+        initiate_intent_search(intents)
     
     # create memory
     if userId in map_chain:  
