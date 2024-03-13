@@ -648,25 +648,64 @@ def extract_timestamp(chat, text):
     
     return msg
 
-def initiate_intent_search():
+intents = [
+    {
+        "id": 1,
+        "action": "춤을 추어",
+        "message": "네 멋진 춤을 출테니 기쁘게 봐주세요."        
+    },
+    {
+        "id": 2,
+        "action": "퀴즈 풀자",
+        "message": "네 그러면 재미있는 문제를 낼테니 잘 맞춰보세요."
+    },
+    {
+        "id": 3,
+        "action": "간석 먹고 싶어?",
+        "message": "주인님 최고! 제가 좋아하는 간식 아시나요?"
+    }
+]
+def search_intent(chat, intents, query):
+    context = ""
+    for i, intent in enumerate(intents):
+        context += f'{i+1}: {intent['action']}\n'
+        
+    system = (
+        """다음의 <context> tag의 예제에서 질문과 가장 가까운 항목을 선택해 주세요.
+            
+        <context>
+        {context}
+        </context>
+
+        질문과 관련있는 항목이 없으면 None이라고 답변합니다. <result> tag를 붙여주세요."""
+    )    
+        
+    human = "{input}"
+    
+    prompt = ChatPromptTemplate.from_messages([("system", system), ("human", human)])
+    print('prompt: ', prompt)
+    
+    chain = prompt | chat    
+    try: 
+        result = chain.invoke(
+            {
+                "context": context,
+                "input": input
+            }
+        )        
+        output = result.content        
+        msg = output[output.find('<result>')+8:len(output)-9] # remove <result> 
+        
+        print('result of intent search: ', msg)
+    except Exception:
+        err_msg = traceback.format_exc()
+        print('error message: ', err_msg)                    
+        raise Exception ("Not able to request to LLM")
+    
+    return msg
+
+def initiate_intent_search(intents):
     global vectorstore
-    intents = [
-        {
-            "id": 1,
-            "action": "춤을 추어",
-            "message": "네 멋진 춤을 출테니 기쁘게 봐주세요."        
-        },
-        {
-            "id": 2,
-            "action": "퀴즈 풀자",
-            "message": "네 그러면 재미있는 문제를 낼테니 잘 맞춰보세요."
-        },
-        {
-            "id": 3,
-            "action": "간석 먹고 싶어?",
-            "message": "주인님 최고! 제가 좋아하는 간식 아시나요?"
-        }
-    ]
         
     embedding = get_embedding(profile_of_LLMs, selected_LLM)
     for intent in intents:
@@ -704,7 +743,9 @@ def initiate_intent_search():
 def getResponse(connectionId, jsonBody):
     print('jsonBody: ', jsonBody)
     
-    initiate_intent_search()
+    messge = search_intent(chat, intents, "나 퀴즈하고 싶어")
+    print('intent search: ', messge)
+    initiate_intent_search(intents)
     
     userId  = jsonBody['user_id']
     print('userId: ', userId)
