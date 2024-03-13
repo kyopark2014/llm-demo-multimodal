@@ -954,7 +954,6 @@ def getResponse(connectionId, jsonBody):
                     action_dict['userId'] = 'general'
                 else:
                     action_dict['userId'] = intent['id']
-                    msg = msg + '\n\n [도움말] Action을 멈추려면 \'그만\'이라고 하세요.'
                     
                 print('current intent: ', action_dict['userId'])
                 

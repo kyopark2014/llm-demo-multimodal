@@ -896,7 +896,9 @@ function greeting() {
             console.log("result: " + JSON.stringify(result));
 
             requestId = uuidv4();
-            addReceivedMessage(requestId, result.msg);   
+
+            notification = '\n\n[도움말] Action을 멈추려면 \'그만\'이라고 하세요.'
+            addReceivedMessage(requestId, result.msg+notification); 
         }
         else {
             console.log("response: " + xhr.responseText);
@@ -924,7 +926,9 @@ function gesture() {
             console.log("result: " + JSON.stringify(result));
 
             requestId = uuidv4();
-            addReceivedMessage(requestId, result.msg);   
+
+            notification = '\n\n[도움말] Action을 멈추려면 \'그만\'이라고 하세요.'
+            addReceivedMessage(requestId, result.msg+notification);   
         }
         else {
             console.log("response: " + xhr.responseText);
