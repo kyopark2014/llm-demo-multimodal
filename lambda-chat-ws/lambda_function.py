@@ -950,7 +950,7 @@ def getResponse(connectionId, jsonBody):
                 msg = intent['message']
                 print('Intent message: ', msg)
                 
-                if intent['action'] == 'stop_action':
+                if intent['id'] == 'stop_action':
                     action_dict['userId'] = 'general'
                 else:
                     action_dict['userId'] = intent['id']
