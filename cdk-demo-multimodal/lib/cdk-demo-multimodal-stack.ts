@@ -2,7 +2,6 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as path from "path";
-import * as logs from "aws-cdk-lib/aws-logs"
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as cloudFront from 'aws-cdk-lib/aws-cloudfront';
@@ -229,7 +228,6 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       code: lambda.Code.fromAsset("../lambda-upload"), 
       handler: "index.handler", 
       timeout: cdk.Duration.seconds(10),
-      logRetention: logs.RetentionDays.ONE_DAY,
       environment: {
         bucketName: s3Bucket.bucketName,
         s3_prefix:  s3_prefix
@@ -278,7 +276,6 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       code: lambda.Code.fromAsset("../lambda-query"), 
       handler: "index.handler", 
       timeout: cdk.Duration.seconds(60),
-      logRetention: logs.RetentionDays.ONE_DAY,
       environment: {
         tableName: callLogTableName,
         indexName: callLogIndexName
@@ -320,7 +317,6 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       code: lambda.Code.fromAsset("../lambda-gethistory"), 
       handler: "index.handler", 
       timeout: cdk.Duration.seconds(60),
-      logRetention: logs.RetentionDays.ONE_DAY,
       environment: {
         tableName: callLogTableName
       }      
@@ -361,7 +357,6 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       code: lambda.Code.fromAsset("../lambda-delete-items"), 
       handler: "index.handler", 
       timeout: cdk.Duration.seconds(60),
-      logRetention: logs.RetentionDays.ONE_DAY,
       environment: {
         tableName: callLogTableName
       }      
@@ -570,7 +565,6 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       runtime: lambda.Runtime.PYTHON_3_11,
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda-provisioning')),
       timeout: cdk.Duration.seconds(30),
-      logRetention: logs.RetentionDays.ONE_DAY,
       environment: {
         wss_url: wss_url,
       }

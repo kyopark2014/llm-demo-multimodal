@@ -23,8 +23,6 @@ from langchain.memory import ConversationBufferWindowMemory
 from langchain_community.embeddings import BedrockEmbeddings
 from langchain_community.vectorstores.faiss import FAISS
 
-import logging
-
 s3 = boto3.client('s3')
 s3_bucket = os.environ.get('s3_bucket') # bucket name
 s3_prefix = os.environ.get('s3_prefix')
