@@ -697,11 +697,11 @@ def search_intent(chat, intents, query):
         output = result.content        
         output_without_tag = output[output.find('<result>')+8:len(output)-9] # remove <result> 
         
-        output = output_without_tag[output_without_tag.find(':')+2:]
-        print('output: ', output)
+        action = output_without_tag[output_without_tag.find(':')+2:]
+        print('action: ', action)
         
         for intent in intents:
-            if intent['action'] == output:
+            if intent['action'] == action:
                 print('result of intent search: ', json.dumps(intent))
                 return True, intent
         
@@ -775,17 +775,6 @@ def getResponse(connectionId, jsonBody):
     chat = get_chat(profile_of_LLMs, selected_LLM)    
     # bedrock_embedding = get_embedding(profile_of_LLMs, selected_LLM)
     
-    if type == 'text':
-        # Intent Search
-        # LLM search
-        result, intent = search_intent(chat, intents, "나 퀴즈하고 싶어")
-        if result:
-            msg = intent['message']
-            print('Intent: ', msg)
-        
-        # similarity search
-        initiate_intent_search(intents)
-    
     # create memory
     if userId in map_chain:  
         print('memory exist. reuse it!')        
@@ -825,36 +814,47 @@ def getResponse(connectionId, jsonBody):
             querySize = len(text)
             textCount = len(text.split())
             print(f"query size: {querySize}, words: {textCount}")
-
-            if text == 'clearMemory':
-                memory_chain.clear()
-                map_chain[userId] = memory_chain
+            
+            # Intent Search
+            # LLM search
+            # similarity search
+            initiate_intent_search(intents, text)
+            
+            isAction, intent = search_intent(chat, intents, text)
+            if isAction:
+                msg = intent['message']
+                print('Intent: ', msg)
                     
-                print('initiate the chat memory!')
-                msg  = "The chat memory was intialized in this session."
-            else:            
-                if convType == "normal":
-                    msg = general_conversation(connectionId, requestId, chat, text)    
-                elif convType == "translation":
-                    msg = translate_text(chat, text) 
-                elif convType == "grammar":
-                    msg = check_grammer(chat, text)  
-                elif convType == "sentiment":
-                    msg = extract_sentiment(chat, text)
-                elif convType == "extraction": # infomation extraction
-                    msg = extract_information(chat, text)  
-                elif convType == "pii":
-                    msg = remove_pii(chat, text)   
-                elif convType == "step-by-step":
-                    msg = do_step_by_step(chat, text)  
-                elif convType == "timestamp-extraction":
-                    msg = extract_timestamp(chat, text)  
-                else:
-                    msg = general_conversation(connectionId, requestId, chat, text)  
-                    
+            else:
+                if text == 'clearMemory':
+                    memory_chain.clear()
+                    map_chain[userId] = memory_chain
+                        
+                    print('initiate the chat memory!')
+                    msg  = "The chat memory was intialized in this session."
+                else:            
+                    if convType == "normal":
+                        msg = general_conversation(connectionId, requestId, chat, text)    
+                    elif convType == "translation":
+                        msg = translate_text(chat, text) 
+                    elif convType == "grammar":
+                        msg = check_grammer(chat, text)  
+                    elif convType == "sentiment":
+                        msg = extract_sentiment(chat, text)
+                    elif convType == "extraction": # infomation extraction
+                        msg = extract_information(chat, text)  
+                    elif convType == "pii":
+                        msg = remove_pii(chat, text)   
+                    elif convType == "step-by-step":
+                        msg = do_step_by_step(chat, text)  
+                    elif convType == "timestamp-extraction":
+                        msg = extract_timestamp(chat, text)  
+                    else:
+                        msg = general_conversation(connectionId, requestId, chat, text)  
+                        
                 memory_chain.chat_memory.add_user_message(text)
                 memory_chain.chat_memory.add_ai_message(msg)
-                
+                    
         elif type == 'document':
             isTyping(connectionId, requestId)
             
