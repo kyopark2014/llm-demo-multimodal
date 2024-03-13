@@ -531,7 +531,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
   
     // POST method - gesture
     const gesture = api.root.addResource("gesture");
-    greeting.addMethod('POST', new apiGateway.LambdaIntegration(lambdaGesture, {
+    gesture.addMethod('POST', new apiGateway.LambdaIntegration(lambdaGesture, {
         passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
         credentialsRole: role,
         integrationResponses: [{
