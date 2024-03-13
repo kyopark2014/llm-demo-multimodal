@@ -153,11 +153,11 @@ function connect(endpoint, type) {
                 else {
                     if(response.action == 'general') {   // clear action
                         console.log('stop action: ', action)
-                        clear_action()
+                        clear_timer()
                     }
                     else if(action != response.action) { // exchange action
                         console.log('exchange action from' + action + ' to '+ response.action)
-                        clear_action()
+                        clear_timer()
                         action = response.action  
                         do_action(action)
                     }
@@ -213,11 +213,13 @@ function do_action(action) {
     console.log('->action: ', action);
 
     if(action == 'greeting')
-        greeting();
+        greeting();    
     else if(action == 'gesture')
         gesture();
     else 
         greeting();
+    
+    clear_timer();
 
     tm_action = setTimeout(function () {
         console.log('action agin');            
@@ -225,7 +227,7 @@ function do_action(action) {
 
     }, 6000);
 }
-function clear_action() {
+function clear_timer() {
     console.log('clear action: ', action);   
     clearTimeout(tm_action);
 }
