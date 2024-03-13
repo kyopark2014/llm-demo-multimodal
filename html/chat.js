@@ -612,21 +612,19 @@ attachFile.addEventListener('click', function(){
                     xmlHttp.onreadystatechange = function() {
                         if (xmlHttp.readyState == XMLHttpRequest.DONE && xmlHttp.status == 200 ) {
                             console.log(xmlHttp.responseText);
+
+                            let commend = message.value;
+                            if(ext == 'png' || ext == 'jpeg' || ext == 'jpg') message.value = "";
                                            
-                            // summary for the upload file                            
-                            if(protocol == 'WEBSOCKET') {
-                                sendMessage({
-                                    "user_id": userId,
-                                    "request_id": requestId,
-                                    "request_time": requestTime,
-                                    "type": "document",
-                                    "body": filename,
-                                    "convType": conversationType
-                                })
-                            }
-                            else {
-                                sendRequestForSummary(filename, requestId, requestTime);
-                            }                            
+                            sendMessage({
+                                "user_id": userId,
+                                "request_id": requestId,
+                                "request_time": requestTime,
+                                "type": "document",
+                                "body": filename,
+                                "commend": commend,
+                                "convType": conversationType
+                            })                                                        
                         }
                         else if(xmlHttp.readyState == XMLHttpRequest.DONE && xmlHttp.status != 200) {
                             console.log('status' + xmlHttp.status);
