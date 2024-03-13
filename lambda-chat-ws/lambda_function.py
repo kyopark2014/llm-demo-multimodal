@@ -900,11 +900,11 @@ def getResponse(connectionId, jsonBody):
         allowTime = getAllowTime()
         load_chat_history(userId, allowTime)
     
-    # load action of an user
+    # load action
     if userId in action_dict:
         print("Action: ", action_dict['userId'])
     else:
-        print('There is no action which is previously defined')
+        print('There is no action that was previously defined.')
         action_dict['userId'] = 'general'
     
     start = int(time.time())    
@@ -944,12 +944,13 @@ def getResponse(connectionId, jsonBody):
             if isAction:
                 msg = intent['message']
                 print('Intent message: ', msg)
-                msg = msg + '\n\n [도움말] Action을 멈추려면 \'그만\'이라고 하세요.'
                 
                 if intent['action'] == 'stop_action':
                     action_dict['userId'] = 'general'
                 else:
                     action_dict['userId'] = intent['action']
+                    msg = msg + '\n\n [도움말] Action을 멈추려면 \'그만\'이라고 하세요.'
+                    
                 print('current intent: ', action_dict['userId'])
                 
             else:

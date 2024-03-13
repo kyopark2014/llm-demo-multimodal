@@ -142,6 +142,28 @@ function connect(endpoint, type) {
                 feedback.style.display = 'none';          
                 console.log('received message: ', response.msg);                  
                 addReceivedMessage(response.request_id, response.msg);  
+
+                if (action == 'general') {
+                    console.log('start action: ', action)
+    
+                    action = response.action  
+                    do_action()
+                }
+                else {
+                    if(response.action == 'general') {   // clear action
+                        console.log('stop action: ', action)
+                        clear_action()
+                    }
+                    else if(action != response.action) { // exchange action
+                        console.log('exchange action from' + action + ' to '+ response.action)
+                        clear_action()
+                        action = response.action  
+                        do_action()
+                    }
+                    else {  // remain action
+                        console.log('remain current action: ', response.action)
+                    }
+                }
             }                
             else if(response.status == 'istyping') {
                 feedback.style.display = 'inline';
@@ -606,28 +628,6 @@ function sendRequest(text, requestId, requestTime) {
         if (xhr.readyState === 4 && xhr.status === 200) {
             response = JSON.parse(xhr.responseText);
             console.log("response: " + JSON.stringify(response));
-            
-            if (action == 'general') {
-                console.log('start action: ', action)
-
-                action = response.action  
-                do_action()
-            }
-            else {
-                if(response.action == 'general') {   // clear action
-                    console.log('stop action: ', action)
-                    clear_action()
-                }
-                else if(action != response.action) { // exchange action
-                    console.log('exchange action from' + action + ' to '+ response.action)
-                    clear_action()
-                    action = response.action  
-                    do_action()
-                }
-                else {  // remain action
-                    console.log('remain current action: ', response.action)
-                }
-            }
             
             addReceivedMessage(response.request_id, response.msg)
         }
