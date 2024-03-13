@@ -16,7 +16,6 @@ const region = process.env.CDK_DEFAULT_REGION;
 const debug = false;
 const stage = 'dev';
 const s3_prefix = 'docs';
-const model_id = "anthropic.claude-3-sonnet-20240229-v1:0"; 
 const projectName = `demo-multimodal`; 
 
 const bucketName = `storage-for-${projectName}-${region}`; 

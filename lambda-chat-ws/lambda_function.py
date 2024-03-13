@@ -21,6 +21,7 @@ from langchain_core.prompts import MessagesPlaceholder, ChatPromptTemplate
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.memory import ConversationBufferWindowMemory
 from langchain_community.embeddings import BedrockEmbeddings
+from langchain_community.vectorstores.faiss import FAISS
 
 import logging
 
@@ -649,8 +650,63 @@ def extract_timestamp(chat, text):
     
     return msg
 
+def initiate_intent_search():
+    global vectorstore
+    intents = [
+        {
+            "id": 1,
+            "action": "춤을 추어",
+            "message": "네 멋진 춤을 출테니 기쁘게 봐주세요."        
+        },
+        {
+            "id": 2,
+            "action": "퀴즈 풀자",
+            "message": "네 그러면 재미있는 문제를 낼테니 잘 맞춰보세요."
+        },
+        {
+            "id": 3,
+            "action": "간석 먹고 싶어?",
+            "message": "주인님 최고! 제가 좋아하는 간식 아시나요?"
+        }
+    ]
+        
+    embedding = get_embedding(profile_of_LLMs, selected_LLM)
+    for intent in intents:
+        doc = []
+        doc.append(
+            Document(
+                page_content=intents['message'],
+                metadata={
+                    'id': intent['id'],
+                    'message': intent['message'],
+                }
+            )
+        ) 
+
+        vectorstore = FAISS.from_documents(
+            doc,  # documents
+            embedding  # embeddings            
+        )
+        
+    query = "나 퀴즈하고 싶어"
+    top_k = 3
+    rel_documents = vectorstore.similarity_search_with_score(
+        query=query,
+        k=top_k        
+    )
+        
+    for i, document in enumerate(rel_documents):
+        print(f'## Document(intent search) {i+1}: {document}')
+
+        id = document[0].metadata['id']
+        message = document[0].metadata['message']
+        action = document[0].page_content
+        print(f"{id}: {message}: {action}")
+
 def getResponse(connectionId, jsonBody):
     print('jsonBody: ', jsonBody)
+    
+    initiate_intent_search()
     
     userId  = jsonBody['user_id']
     print('userId: ', userId)
