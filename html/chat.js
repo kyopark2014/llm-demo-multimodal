@@ -185,6 +185,20 @@ function connect(endpoint, type) {
     return ws;
 }
 
+let tm_action;
+function do_action() {
+    console.log('->action');
+
+    tm_action = setTimeout(function () {
+        console.log('action: ', action);    
+        
+        greeting();
+    }, 10000);
+}
+function clear_action() {
+    clearTimeout(tm_action);
+}
+
 // Documents
 const title = document.querySelector('#title');
 const sendBtn = document.querySelector('#sendBtn');
@@ -201,6 +215,7 @@ let maxMsgItems = 200;
 let msgHistory = new HashMap();
 let callee = "AWS";
 let index=0;
+let action = "general"
 
 let conversationType = localStorage.getItem('convType'); // set convType if exists 
 if(conversationType=="") {
@@ -592,6 +607,28 @@ function sendRequest(text, requestId, requestTime) {
             response = JSON.parse(xhr.responseText);
             console.log("response: " + JSON.stringify(response));
             
+            if (action == 'general') {
+                console.log('start action: ', action)
+
+                action = response.action  
+                do_action()
+            }
+            else {
+                if(response.action == 'general') {   // clear action
+                    console.log('stop action: ', action)
+                    clear_action()
+                }
+                else if(action != response.action) { // exchange action
+                    console.log('exchange action from' + action + ' to '+ response.action)
+                    clear_action()
+                    action = response.action  
+                    do_action()
+                }
+                else {  // remain action
+                    console.log('remain current action: ', response.action)
+                }
+            }
+            
             addReceivedMessage(response.request_id, response.msg)
         }
         else if(xhr.readyState ===4 && xhr.status === 504) {
@@ -606,7 +643,8 @@ function sendRequest(text, requestId, requestTime) {
         "request_id": requestId,
         "request_time": requestTime,
         "type": "text",
-        "body":text
+        "body":text,
+        'action': action
     }
     console.log("request: " + JSON.stringify(requestObj));
 

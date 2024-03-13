@@ -8,10 +8,12 @@ import csv
 import sys
 import re
 import traceback
+import base64
 
 from botocore.config import Config
 from io import BytesIO
 from urllib import parse
+from PIL import Image
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document
 from langchain.chains.summarize import load_summarize_chain
@@ -22,6 +24,7 @@ from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.memory import ConversationBufferWindowMemory
 from langchain_community.embeddings import BedrockEmbeddings
 from langchain_community.vectorstores.faiss import FAISS
+from langchain_core.messages import HumanMessage, SystemMessage
 
 s3 = boto3.client('s3')
 s3_bucket = os.environ.get('s3_bucket') # bucket name
@@ -33,6 +36,34 @@ doc_prefix = s3_prefix+'/'
 
 profile_of_LLMs = json.loads(os.environ.get('profile_of_LLMs'))
 selected_LLM = 0
+
+intents = [
+    {
+        "id": "dansing",
+        "action": "춤을 춰주세요.",
+        "message": "[Action] 네 멋진 춤을 출테니 기쁘게 봐주세요."        
+    },
+    {
+        "id": "quiz",
+        "action": "퀴즈 풀어주세요",
+        "message": "[Action] 네 그러면 재미있는 문제를 낼테니 잘 맞춰보세요."
+    },
+    {
+        "id": "game-feeding",
+        "action": "간석 먹고 싶어?",
+        "message": "[Action] 주인님 최고! 제가 좋아하는 간식 아시나요?"
+    },
+    {
+        "id": "gesture",
+        "action": "제스처 게임하고 싶어",
+        "message": "[Action] 이제 제스처 게임을 하겠습니다. 카메라를 보며 하트를 한번 해보세요."
+    },
+    {
+        "id": "stop_action",
+        "action": "그만",
+        "message": "[Action] Action을 멈추고 다시 일반적인 대화를 시작합니다."
+    }
+]
    
 # websocket
 connection_url = os.environ.get('connection_url')
@@ -105,6 +136,7 @@ def get_embedding(profile_of_LLMs, selected_LLM):
     return bedrock_embedding
 
 map_chain = dict() 
+action_dict = dict()
 MSG_LENGTH = 100
 
 # load documents from s3 for pdf and txt
@@ -334,9 +366,10 @@ def sendMessage(id, body):
         print('err_msg: ', err_msg)
         raise Exception ("Not able to send a message")
 
-def sendResultMessage(connectionId, requestId, msg):    
+def sendResultMessage(connectionId, requestId, action, msg):    
     result = {
         'request_id': requestId,
+        'action': action,
         'msg': msg,
         'status': 'completed'
     }
@@ -648,24 +681,7 @@ def extract_timestamp(chat, text):
     
     return msg
 
-intents = [
-    {
-        "id": 1,
-        "action": "춤을 춰주세요.",
-        "message": "네 멋진 춤을 출테니 기쁘게 봐주세요."        
-    },
-    {
-        "id": 2,
-        "action": "퀴즈 풀어주세요",
-        "message": "네 그러면 재미있는 문제를 낼테니 잘 맞춰보세요."
-    },
-    {
-        "id": 3,
-        "action": "간석 먹고 싶어?",
-        "message": "주인님 최고! 제가 좋아하는 간식 아시나요?"
-    }
-]
-def search_intent(chat, intents, query):
+def search_intent_using_prompt_engineering(chat, intents, query):
     context = ""
     for i, intent in enumerate(intents):
         idx = i+1
@@ -712,7 +728,7 @@ def search_intent(chat, intents, query):
     
     return False, {}
 
-def initiate_intent_search(intents, query):
+def search_intent_using_similarity_search(intents, query):
     global vectorstore
         
     embedding = get_embedding(profile_of_LLMs, selected_LLM)
@@ -747,6 +763,103 @@ def initiate_intent_search(intents, query):
         action = document[0].page_content
         print(f"similarity search: {id}: {message}: {action}")
 
+def use_multimodal(chat, img_base64, query):    
+    if query == "":
+        query = "그림에 대해 상세히 설명해줘."
+    
+    messages = [
+        SystemMessage(content="답변은 500자 이내의 한국어로 설명해주세요."),
+        HumanMessage(
+            content=[
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/png;base64,{img_base64}", 
+                    },
+                },
+                {
+                    "type": "text", "text": query
+                },
+            ]
+        )
+    ]
+    
+    try: 
+        result = chat.invoke(messages)
+        
+        summary = result.content
+        print('result of code summarization: ', summary)
+    except Exception:
+        err_msg = traceback.format_exc()
+        print('error message: ', err_msg)                    
+        raise Exception ("Not able to request to LLM")
+    
+    return summary
+
+def earn_gesture(chat, img_base64, query):    
+    if query == "":
+        query = "그림에서 사람이 표현하는 Guesture에 대해 설명해줘."
+    
+    messages = [
+        SystemMessage(content="답변은 500자 이내의 한국어로 설명해주세요."),
+        HumanMessage(
+            content=[
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/png;base64,{img_base64}", 
+                    },
+                },
+                {
+                    "type": "text", "text": query
+                },
+            ]
+        )
+    ]
+    
+    try: 
+        result = chat.invoke(messages)
+        
+        summary = result.content
+        print('result of code summarization: ', summary)
+    except Exception:
+        err_msg = traceback.format_exc()
+        print('error message: ', err_msg)                    
+        raise Exception ("Not able to request to LLM")
+    
+    return summary
+
+def extract_text(chat, img_base64):    
+    query = "텍스트를 추출해서 utf8로 변환하세요. <result> tag를 붙여주세요."
+    
+    messages = [
+        HumanMessage(
+            content=[
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/png;base64,{img_base64}", 
+                    },
+                },
+                {
+                    "type": "text", "text": query
+                },
+            ]
+        )
+    ]
+    
+    try: 
+        result = chat.invoke(messages)
+        
+        extracted_text = result.content
+        print('result of text extraction from an image: ', extracted_text)
+    except Exception:
+        err_msg = traceback.format_exc()
+        print('error message: ', err_msg)                    
+        raise Exception ("Not able to request to LLM")
+    
+    return extracted_text
+
 def getResponse(connectionId, jsonBody):
     print('jsonBody: ', jsonBody)
     
@@ -778,7 +891,7 @@ def getResponse(connectionId, jsonBody):
     # create memory
     if userId in map_chain:  
         print('memory exist. reuse it!')        
-        memory_chain = map_chain[userId]
+        memory_chain = map_chain[userId]        
     else: 
         print('memory does not exist. create new one!')        
         memory_chain = ConversationBufferWindowMemory(memory_key="chat_history", output_key='answer', return_messages=True, k=10)
@@ -786,6 +899,13 @@ def getResponse(connectionId, jsonBody):
 
         allowTime = getAllowTime()
         load_chat_history(userId, allowTime)
+    
+    # load action of an user
+    if userId in action_dict:
+        print(f'the action of {userId}: {action_dict['userId']}')
+    else:
+        print('There is no action which is previously defined')
+        action_dict['userId'] = 'general'
     
     start = int(time.time())    
 
@@ -818,13 +938,20 @@ def getResponse(connectionId, jsonBody):
             # Intent Search
             # LLM search
             # similarity search
-            initiate_intent_search(intents, text)
+            search_intent_using_similarity_search(intents, text)
             
-            isAction, intent = search_intent(chat, intents, text)
+            isAction, intent = search_intent_using_prompt_engineering(chat, intents, text)
             if isAction:
                 msg = intent['message']
-                print('Intent: ', msg)
-                    
+                print('Intent message: ', msg)
+                msg = msg + '\n\n [도움말] Action을 멈추려면 \'그만\'이라고 하세요.'
+                
+                if intent['action'] == 'stop_action':
+                    action_dict['userId'] = 'general'
+                else:
+                    action_dict['userId'] = intent['action']
+                print('current intent: ', action_dict['userId'])
+                
             else:
                 if text == 'clearMemory':
                     memory_chain.clear()
@@ -852,8 +979,8 @@ def getResponse(connectionId, jsonBody):
                     else:
                         msg = general_conversation(connectionId, requestId, chat, text)  
                         
-                memory_chain.chat_memory.add_user_message(text)
-                memory_chain.chat_memory.add_ai_message(msg)
+            memory_chain.chat_memory.add_user_message(text)
+            memory_chain.chat_memory.add_ai_message(msg)
                     
         elif type == 'document':
             isTyping(connectionId, requestId)
@@ -895,6 +1022,50 @@ def getResponse(connectionId, jsonBody):
                 print('contexts: ', contexts)
 
                 msg = get_summary(chat, contexts)
+            
+            elif file_type == 'png' or file_type == 'jpeg' or file_type == 'jpg':
+                print('multimodal: ', object)
+                
+                s3_client = boto3.client('s3') 
+                    
+                image_obj = s3_client.get_object(Bucket=s3_bucket, Key=s3_prefix+'/'+object)
+                # print('image_obj: ', image_obj)
+                
+                image_content = image_obj['Body'].read()
+                img = Image.open(BytesIO(image_content))
+                
+                width, height = img.size 
+                print(f"width: {width}, height: {height}, size: {width*height}")
+                
+                isResized = False
+                while(width*height > 5242880):                    
+                    width = int(width/2)
+                    height = int(height/2)
+                    isResized = True
+                    print(f"width: {width}, height: {height}, size: {width*height}")
+                
+                if isResized:
+                    img = img.resize((width, height))
+                
+                buffer = BytesIO()
+                img.save(buffer, format="PNG")
+                img_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+                
+                commend  = jsonBody['commend']
+                print('commend: ', commend)
+                
+                # verify the image
+                msg = use_multimodal(chat, img_base64, commend)       
+                
+                # extract text from the image
+                text = extract_text(chat, img_base64)
+                extracted_text = text[text.find('<result>')+8:len(text)-9] # remove <result> tag
+                print('extracted_text: ', extracted_text)
+                if len(extracted_text)>10:
+                    msg = msg + f"\n\n[추출된 Text]\n{extracted_text}\n"
+                
+                memory_chain.chat_memory.add_user_message(f"{object}에서 텍스트를 추출하세요.")
+                memory_chain.chat_memory.add_ai_message(extracted_text)
                 
         elapsed_time = int(time.time()) - start
         print("total run time(sec): ", elapsed_time)
@@ -955,7 +1126,7 @@ def lambda_handler(event, context):
                     msg = getResponse(connectionId, jsonBody)
                     # print('msg: ', msg)
                     
-                    sendResultMessage(connectionId, requestId, msg)  
+                    sendResultMessage(connectionId, requestId, action_dict['userId'], msg)  
                                         
                 except Exception:
                     err_msg = traceback.format_exc()
