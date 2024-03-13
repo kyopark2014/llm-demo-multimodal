@@ -691,7 +691,7 @@ def search_intent(chat, intents, query):
         result = chain.invoke(
             {
                 "context": context,
-                "input": input
+                "input": query
             }
         )        
         output = result.content        
@@ -744,13 +744,6 @@ def initiate_intent_search(intents):
 def getResponse(connectionId, jsonBody):
     print('jsonBody: ', jsonBody)
     
-    # LLM search
-    messge = search_intent(chat, intents, "나 퀴즈하고 싶어")
-    print('intent search: ', messge)
-    
-    # similarity search
-    initiate_intent_search(intents)
-    
     userId  = jsonBody['user_id']
     print('userId: ', userId)
     requestId  = jsonBody['request_id']
@@ -775,6 +768,17 @@ def getResponse(connectionId, jsonBody):
     
     chat = get_chat(profile_of_LLMs, selected_LLM)    
     bedrock_embedding = get_embedding(profile_of_LLMs, selected_LLM)
+    
+    
+    # LLM search
+    messge = search_intent(chat, intents, "나 퀴즈하고 싶어")
+    print('intent search: ', messge)
+    
+    # similarity search
+    initiate_intent_search(intents)
+    
+    
+    
     # create memory
     if userId in map_chain:  
         print('memory exist. reuse it!')        
