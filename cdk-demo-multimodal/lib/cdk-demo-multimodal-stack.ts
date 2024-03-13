@@ -476,6 +476,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       description: 'The arn of lambda webchat.',
     }); 
 
+    // Lambda - greeting
     const lambdaGreeting = new lambda.DockerImageFunction(this, `lambda-greeting-for-${projectName}`, {
       description: 'lambda for greeting',
       functionName: `lambda-greeting-for-${projectName}`,
@@ -514,6 +515,46 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
         viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
     });
     s3Bucket.grantReadWrite(lambdaGreeting);
+
+    // Lambda - gesture
+    const lambdaGesture = new lambda.DockerImageFunction(this, `lambda-gesture-for-${projectName}`, {
+      description: 'lambda for gesture',
+      functionName: `lambda-gesture-for-${projectName}`,
+      code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../../lambda-gesture')),
+      timeout: cdk.Duration.seconds(60),
+      role: roleLambda,
+      environment: {
+        s3_bucket: bucketName,
+        profile_of_LLMs:JSON.stringify(profile_of_LLMs),
+      }
+    });     
+  
+    // POST method - gesture
+    const gesture = api.root.addResource("gesture");
+    greeting.addMethod('POST', new apiGateway.LambdaIntegration(lambdaGesture, {
+        passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
+        credentialsRole: role,
+        integrationResponses: [{
+            statusCode: '200',
+        }],
+        proxy: true,
+    }), {
+        methodResponses: [
+            {
+                statusCode: '200',
+                responseModels: {
+                    'application/json': apiGateway.Model.EMPTY_MODEL,
+                },
+            }
+        ]
+    });
+    
+    distribution.addBehavior("/gesture", new origins.RestApiOrigin(api), {
+        cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
+        allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,
+        viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    });
+    s3Bucket.grantReadWrite(lambdaGesture);
     
     const integrationUri = `arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${lambdaChatWebsocket.functionArn}/invocations`;    
     const cfnIntegration = new apigatewayv2.CfnIntegration(this, `api-integration-for-${projectName}`, {

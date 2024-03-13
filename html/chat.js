@@ -147,7 +147,7 @@ function connect(endpoint, type) {
                     console.log('start action: ', action)
     
                     action = response.action  
-                    do_action()
+                    do_action(action)
                 }
                 else {
                     if(response.action == 'general') {   // clear action
@@ -158,7 +158,7 @@ function connect(endpoint, type) {
                         console.log('exchange action from' + action + ' to '+ response.action)
                         clear_action()
                         action = response.action  
-                        do_action()
+                        do_action(action)
                     }
                     else {  // remain action
                         console.log('remain current action: ', response.action)
@@ -208,14 +208,26 @@ function connect(endpoint, type) {
 }
 
 let tm_action;
-function do_action() {
-    console.log('->action');
+function do_action(action) {
+    console.log('->action: ', action);
+
+    if(action == 'greeting')
+        greeting();
+    else if(action == 'gesture')
+        gesture();
+    else 
+        greeting();
 
     tm_action = setTimeout(function () {
         console.log('action: ', action);    
         
-        greeting();
-    }, 10000);
+        if(action == 'greeting')
+            greeting();
+        else if(action == 'gesture')
+            gesture();
+        else 
+            greeting();
+    }, 6000);
 }
 function clear_action() {
     clearTimeout(tm_action);
@@ -874,15 +886,37 @@ function preview() {
 function greeting() {
     canvas.getContext('2d').drawImage(previewPlayer, 0, 0, canvas.width, canvas.height);
     drawingIndex = 0;
-
     console.log('event for greeting');
 
-    //getEmotion();
-    makeGreetingMessage();
+    const uri = "greeting";
+    const xhr = new XMLHttpRequest();
+
+    xhr.open("POST", uri, true);
+
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            let result = JSON.parse(xhr.responseText);
+            console.log("result: " + JSON.stringify(result));
+
+            requestId = uuidv4();
+            addReceivedMessage(requestId, result.msg);   
+        }
+        else {
+            console.log("response: " + xhr.responseText);
+        }
+    };
+    
+    canvas.toBlob(function (blob) {
+        xhr.send(blob);
+    }, {type: 'image/png'});
 }
 
-function makeGreetingMessage() {
-    const uri = "greeting";
+function gesture() {
+    canvas.getContext('2d').drawImage(previewPlayer, 0, 0, canvas.width, canvas.height);
+    drawingIndex = 0;
+    console.log('event for gesture');
+
+    const uri = "gesture";
     const xhr = new XMLHttpRequest();
 
     xhr.open("POST", uri, true);

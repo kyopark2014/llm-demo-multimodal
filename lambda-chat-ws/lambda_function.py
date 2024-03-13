@@ -59,6 +59,11 @@ intents = [
         "message": "[Action] 이제 제스처 게임을 하겠습니다. 카메라를 보며 하트를 한번 해보세요."
     },
     {
+        "id": "greeting",
+        "action": "인사해봐",
+        "message": "[Action] 사진에서 고객님의 기분을 파악하여 적절한 인사말을 합니다."
+    },
+    {
         "id": "stop_action",
         "action": "그만",
         "message": "[Action] Action을 멈추고 다시 일반적인 대화를 시작합니다."
