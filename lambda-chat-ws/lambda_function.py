@@ -686,7 +686,7 @@ def initiate_intent_search():
             embedding  # embeddings            
         )
         
-    query = "나 퀴즈하고 싶어"
+    query = "퀴즈해"
     top_k = 3
     rel_documents = vectorstore.similarity_search_with_score(
         query=query,
