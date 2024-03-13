@@ -673,7 +673,7 @@ def initiate_intent_search():
         doc = []
         doc.append(
             Document(
-                page_content=intents['message'],
+                page_content=intent['action'],
                 metadata={
                     'id': intent['id'],
                     'message': intent['message'],
