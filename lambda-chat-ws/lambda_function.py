@@ -651,12 +651,12 @@ def extract_timestamp(chat, text):
 intents = [
     {
         "id": 1,
-        "action": "춤을 추어",
+        "action": "춤을 춰주세요.",
         "message": "네 멋진 춤을 출테니 기쁘게 봐주세요."        
     },
     {
         "id": 2,
-        "action": "퀴즈 풀자",
+        "action": "퀴즈 풀어주세요",
         "message": "네 그러면 재미있는 문제를 낼테니 잘 맞춰보세요."
     },
     {
@@ -695,7 +695,15 @@ def search_intent(chat, intents, query):
             }
         )        
         output = result.content        
-        msg = output[output.find('<result>')+8:len(output)-9] # remove <result> 
+        output_without_tag = output[output.find('<result>')+8:len(output)-9] # remove <result> 
+        
+        output = output_without_tag[output_without_tag.find(':')+1:]
+        print('output: ', output)
+        
+        for intent in intents:
+            if intent['action'] == output:
+                msg = intent['message']
+                break
         
         print('result of intent search: ', msg)
     except Exception:
@@ -769,7 +777,7 @@ def getResponse(connectionId, jsonBody):
     chat = get_chat(profile_of_LLMs, selected_LLM)    
     bedrock_embedding = get_embedding(profile_of_LLMs, selected_LLM)
     
-    
+    # Intent Search
     # LLM search
     messge = search_intent(chat, intents, "나 퀴즈하고 싶어")
     print('intent search: ', messge)
