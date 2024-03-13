@@ -139,7 +139,9 @@ function connect(endpoint, type) {
             response = JSON.parse(event.data)
 
             if(response.status == 'completed') {          
-                feedback.style.display = 'none';          
+                feedback.style.display = 'none';       
+                console.log('response: ', response.msg);                  
+                   
                 console.log('received message: ', response.msg);                  
                 addReceivedMessage(response.request_id, response.msg);  
 
@@ -229,6 +231,7 @@ function do_action(action) {
     }, 6000);
 }
 function clear_action() {
+    console.log('clear action: ', action);   
     clearTimeout(tm_action);
 }
 
