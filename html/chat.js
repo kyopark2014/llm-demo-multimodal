@@ -220,14 +220,9 @@ function do_action(action) {
         greeting();
 
     tm_action = setTimeout(function () {
-        console.log('action: ', action);    
-        
-        if(action == 'greeting')
-            greeting();
-        else if(action == 'gesture')
-            gesture();
-        else 
-            greeting();
+        console.log('action agin');            
+        do_action(action)
+
     }, 6000);
 }
 function clear_action() {
