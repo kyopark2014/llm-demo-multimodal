@@ -583,7 +583,7 @@ attachFile.addEventListener('click', function(){
 
             let commend = message.value;
             if(ext == 'png' || ext == 'jpeg' || ext == 'jpg') {
-                addSentMessageForSummary(requestId, timestr, message.value+"\nuploading the selected file in order to summerize...");
+                addSentMessageForSummary(requestId, timestr, message.value+"\n\nuploading the selected file in order to summerize...");
 
                 message.value = "";
             }
