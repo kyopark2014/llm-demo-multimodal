@@ -140,9 +140,8 @@ function connect(endpoint, type) {
 
             if(response.status == 'completed') {          
                 feedback.style.display = 'none';       
-                console.log('response (action): ', response.action);                  
+                console.log('current: '+action+'next: '+response.msg);
                    
-                console.log('received (message): ', response.msg);                  
                 addReceivedMessage(response.request_id, response.msg);  
 
                 if (action == 'general' && response.action != 'general') { // do action
