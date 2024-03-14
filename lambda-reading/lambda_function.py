@@ -105,6 +105,7 @@ def lambda_handler(event, context):
     # print(event)
     
     image_content = event["body"]
+    start_time = time.time()
     
     img = Image.open(BytesIO(base64.b64decode(image_content)))
     
@@ -132,7 +133,14 @@ def lambda_handler(event, context):
     extracted_text = text[text.find('<result>')+8:len(text)-9] # remove <result> tag
     print('extracted_text: ', extracted_text)
     
+    end_time = time.time()
+    time_for_estimation = end_time - start_time
+    
     return {
+        "isBase64Encoded": False,
         'statusCode': 200,
-        'text': extracted_text
+        'body': json.dumps({            
+            "msg": extracted_text,
+            "time_taken": str(time_for_estimation)
+        })
     }

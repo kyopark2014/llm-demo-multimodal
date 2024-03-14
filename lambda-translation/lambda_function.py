@@ -140,6 +140,7 @@ def lambda_handler(event, context):
     # print(event)
     
     image_content = event["body"]
+    start_time = time.time()
     
     img = Image.open(BytesIO(base64.b64decode(image_content)))
     
@@ -170,7 +171,14 @@ def lambda_handler(event, context):
     translated_text = translate_text(chat, extracted_text)
     print('translated_text: ', translated_text)
     
+    end_time = time.time()
+    time_for_estimation = end_time - start_time
+    
     return {
+        "isBase64Encoded": False,
         'statusCode': 200,
-        'text': translated_text
+        'body': json.dumps({            
+            "msg": translated_text,
+            "time_taken": str(time_for_estimation)
+        })
     }
