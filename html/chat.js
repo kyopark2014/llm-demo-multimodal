@@ -580,7 +580,16 @@ attachFile.addEventListener('click', function(){
             let timestr = getTime(current);
             let requestTime = datastr+' '+timestr
             let requestId = uuidv4();
-            addSentMessageForSummary(requestId, timestr, "uploading the selected file in order to summerize...");
+
+            let commend = message.value;
+            if(ext == 'png' || ext == 'jpeg' || ext == 'jpg') {
+                addSentMessageForSummary(requestId, timestr, "message.value + \nuploading the selected file in order to summerize...");
+
+                message.value = "";
+            }
+            else {
+                addSentMessageForSummary(requestId, timestr, "uploading the selected file in order to summerize...");
+            }
 
             const uri = "upload";
             const xhr = new XMLHttpRequest();
@@ -611,9 +620,6 @@ attachFile.addEventListener('click', function(){
                         if (xmlHttp.readyState == XMLHttpRequest.DONE && xmlHttp.status == 200 ) {
                             console.log(xmlHttp.responseText);
 
-                            let commend = message.value;
-                            if(ext == 'png' || ext == 'jpeg' || ext == 'jpg') message.value = "";
-                                           
                             sendMessage({
                                 "user_id": userId,
                                 "request_id": requestId,
