@@ -582,7 +582,7 @@ attachFile.addEventListener('click', function(){
             let requestId = uuidv4();
 
             let commend = message.value;
-            if((ext == 'png' || ext == 'jpeg' || ext == 'jpg') && commend) {
+            if((ext == 'png' || ext == 'jpeg' || ext == 'jpg') && commend!="") {
                 addSentMessageForSummary(requestId, timestr, message.value+"<br>"+"uploading the selected file in order to summerize...");
 
                 message.value = "";
