@@ -92,7 +92,7 @@ const claude2 = [
   }
 ];
 
-const profile_of_LLMs = claude2;
+const profile_of_LLMs = claude3_sonnet;
 
 export class CdkDemoMultimodalStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -479,7 +479,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
         path: 'https://'+distribution.domainName+'/',   
         callLogTableName: callLogTableName,
         connection_url: connection_url,
-        profile_of_LLMs:JSON.stringify(profile_of_LLMs),
+        profile_of_LLMs:JSON.stringify(claude3_haiku),
       }
     });     
     lambdaChatWebsocket.grantInvoke(new iam.ServicePrincipal('apigateway.amazonaws.com'));  
@@ -500,7 +500,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       role: roleLambda,
       environment: {
         s3_bucket: bucketName,
-        profile_of_LLMs:JSON.stringify(profile_of_LLMs),
+        profile_of_LLMs:JSON.stringify(claude3_sonnet),
       }
     });     
   
@@ -540,7 +540,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       role: roleLambda,
       environment: {
         s3_bucket: bucketName,
-        profile_of_LLMs:JSON.stringify(profile_of_LLMs),
+        profile_of_LLMs:JSON.stringify(claude3_sonnet),
       }
     });     
   
