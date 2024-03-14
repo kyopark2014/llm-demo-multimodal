@@ -1050,6 +1050,7 @@ def getResponse(connectionId, jsonBody):
                     print(f"width: {width}, height: {height}, size: {width*height}")
                 
                 if isResized:
+                    print(f'The image will be resized with ({width} / {height})')
                     img = img.resize((width, height))
                     print(f'The image was resized with ({width} / {height})')
                 
