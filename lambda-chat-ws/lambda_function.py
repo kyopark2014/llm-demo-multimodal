@@ -701,6 +701,7 @@ def search_intent_using_prompt_engineering(chat, intents, query):
     for i, intent in enumerate(intents):
         idx = i+1
         context += f"{idx}: {intent['action']}\n"
+    print('context: ', context)
     
     system = (
         """다음의 <context> tag의 예제에서 질문과 가장 가까운 항목을 선택해 주세요.
