@@ -64,6 +64,16 @@ intents = [
         "message": "[Action] 사진에서 고객님의 기분을 파악하여 적절한 인사말을 합니다."
     },
     {
+        "id": "reading",
+        "action": "다음을 읽어줘",
+        "message": "[Action] 사진 속의 문장을 텍스트로 읽어옵니다."
+    },
+    {
+        "id": "translation",
+        "action": "번역해줘",
+        "message": "[Action] 사진의 문장을 한국어로 번역합니다."
+    },
+    {
         "id": "stop_action",
         "action": "그만",
         "message": "[Action] Action을 멈추고 다시 일반적인 대화를 시작합니다."

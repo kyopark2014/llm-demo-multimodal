@@ -7,8 +7,6 @@ import boto3
 import uuid
 import json
 
-from langchain.prompts import PromptTemplate
-from langchain.llms.bedrock import Bedrock
 from botocore.config import Config
 from PIL import Image
 from io import BytesIO
@@ -21,8 +19,6 @@ from langchain_core.prompts import MessagesPlaceholder, ChatPromptTemplate
 from langchain_core.messages import HumanMessage, SystemMessage
 
 bucket = os.environ.get('s3_bucket') # bucket name
-s3_prefix = os.environ.get('s3_prefix')
-historyTableName = os.environ.get('historyTableName')
 speech_prefix = 'speech/'
 
 s3 = boto3.client('s3')
@@ -70,6 +66,35 @@ def get_chat(profile_of_LLMs, selected_LLM):
     
     return chat
 
+def generate_greeting_message(chat, img_base64, query):    
+    messages = [
+        SystemMessage(content="답변은 50자 이내의 한국어로 해주세요. <result> tag를 붙여주세요."),
+        HumanMessage(
+            content=[
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/png;base64,{img_base64}", 
+                    },
+                },
+                {
+                    "type": "text", "text": query
+                },
+            ]
+        )
+    ]
+    
+    try: 
+        result = chat.invoke(messages)        
+        msg = result.content
+
+    except Exception:
+        err_msg = traceback.format_exc()
+        print('error message: ', err_msg)                    
+        raise Exception ("Not able to request to LLM")
+    
+    return msg[msg.find('<result>')+8:len(msg)-9] # remove <result> tag
+
 def extract_text(chat, img_base64):    
     query = "텍스트를 추출해서 utf8 형태의 한국어로 답변하세요. <result> tag를 붙여주세요."
     
@@ -102,9 +127,11 @@ def extract_text(chat, img_base64):
     return extracted_text
     
 def lambda_handler(event, context):
-    # print(event)
+    print(event)
     
-    image_content = event["body"]
+    image_content = event["body"]    
+    
+    start_time_for_greeting = time.time()
     
     img = Image.open(BytesIO(base64.b64decode(image_content)))
     
@@ -125,14 +152,26 @@ def lambda_handler(event, context):
     img.save(buffer, format="PNG")
     img_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
     
-    # extract text from the image
-    chat = get_chat(profile_of_LLMs, selected_LLM)
+    # creating greeting message
+    chat = get_chat(profile_of_LLMs, selected_LLM)    
+    query = """<example> tag에 있는 예를 참조하여 그림에 있는 사람이 기분 좋아지는 멋진 인사말을 해주세요.
+    <example>
+    안녕. 너는 멋진 옷을 입고 왔구나.
+    안녕. 기분 좋지 않은일이 있니? 그래도 힘내도 오늘 멋지게 데모를 즐기자.
+    하이, 정말 멋진 날이지? 반가워!
+    </example>
+    """
+    msg = generate_greeting_message(chat, img_base64, query)     
+    print('greeting msg: ', msg)  
     
-    text = extract_text(chat, img_base64)
-    extracted_text = text[text.find('<result>')+8:len(text)-9] # remove <result> tag
-    print('extracted_text: ', extracted_text)
+    end_time_for_greeting = time.time()
+    time_for_greeting = end_time_for_greeting - start_time_for_greeting
     
     return {
+        "isBase64Encoded": False,
         'statusCode': 200,
-        'text': extracted_text
+        'body': json.dumps({            
+            "msg": msg,
+            "time_taken": str(time_for_greeting)
+        })
     }

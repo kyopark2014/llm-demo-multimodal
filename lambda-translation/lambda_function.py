@@ -100,6 +100,41 @@ def extract_text(chat, img_base64):
         raise Exception ("Not able to request to LLM")
     
     return extracted_text
+
+def translate_text(chat, text):
+    system = (
+        "You are a helpful assistant that translates {input_language} to {output_language} in <article> tags. Put it in <result> tags."
+    )
+    human = "<article>{text}</article>"
+    
+    prompt = ChatPromptTemplate.from_messages([("system", system), ("human", human)])
+    print('prompt: ', prompt)
+    
+    if isKorean(text)==False :
+        input_language = "English"
+        output_language = "Korean"
+    else:
+        input_language = "Korean"
+        output_language = "English"
+                        
+    chain = prompt | chat    
+    try: 
+        result = chain.invoke(
+            {
+                "input_language": input_language,
+                "output_language": output_language,
+                "text": text,
+            }
+        )
+        msg = result.content
+        print('translated text: ', msg)
+    except Exception:
+        err_msg = traceback.format_exc()
+        print('error message: ', err_msg)                    
+        raise Exception ("Not able to request to LLM")
+
+    return msg[msg.find('<result>')+8:len(msg)-9] # remove <result> tag
+
     
 def lambda_handler(event, context):
     # print(event)
@@ -132,7 +167,10 @@ def lambda_handler(event, context):
     extracted_text = text[text.find('<result>')+8:len(text)-9] # remove <result> tag
     print('extracted_text: ', extracted_text)
     
+    translated_text = translate_text(chat, extracted_text)
+    print('translated_text: ', translated_text)
+    
     return {
         'statusCode': 200,
-        'text': extracted_text
+        'text': translated_text
     }

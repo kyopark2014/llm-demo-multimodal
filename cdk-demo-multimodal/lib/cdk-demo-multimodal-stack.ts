@@ -531,6 +531,86 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     });
     s3Bucket.grantReadWrite(lambdaGreeting);
 
+    // Lambda - reading
+    const lambdaReading = new lambda.DockerImageFunction(this, `lambda-reading-for-${projectName}`, {
+      description: 'lambda for reading',
+      functionName: `lambda-reading-for-${projectName}`,
+      code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../../lambda-reading')),
+      timeout: cdk.Duration.seconds(60),
+      role: roleLambda,
+      environment: {
+        s3_bucket: bucketName,
+        profile_of_LLMs:JSON.stringify(claude3_sonnet),
+      }
+    });     
+  
+    // POST method - reading
+    const reading = api.root.addResource("reading");
+    reading.addMethod('POST', new apiGateway.LambdaIntegration(lambdaReading, {
+        passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
+        credentialsRole: role,
+        integrationResponses: [{
+            statusCode: '200',
+        }],
+        proxy: true,
+    }), {
+        methodResponses: [
+            {
+                statusCode: '200',
+                responseModels: {
+                    'application/json': apiGateway.Model.EMPTY_MODEL,
+                },
+            }
+        ]
+    });
+    
+    distribution.addBehavior("/reading", new origins.RestApiOrigin(api), {
+        cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
+        allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,
+        viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    });
+    s3Bucket.grantReadWrite(lambdaReading);
+
+    // Lambda - translation
+    const lambdaTranslation = new lambda.DockerImageFunction(this, `lambda-translation-for-${projectName}`, {
+      description: 'lambda for translation',
+      functionName: `lambda-translation-for-${projectName}`,
+      code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../../lambda-translation')),
+      timeout: cdk.Duration.seconds(60),
+      role: roleLambda,
+      environment: {
+        s3_bucket: bucketName,
+        profile_of_LLMs:JSON.stringify(claude3_sonnet),
+      }
+    });     
+  
+    // POST method - translation
+    const translation = api.root.addResource("translation");
+    translation.addMethod('POST', new apiGateway.LambdaIntegration(lambdaTranslation, {
+        passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
+        credentialsRole: role,
+        integrationResponses: [{
+            statusCode: '200',
+        }],
+        proxy: true,
+    }), {
+        methodResponses: [
+            {
+                statusCode: '200',
+                responseModels: {
+                    'application/json': apiGateway.Model.EMPTY_MODEL,
+                },
+            }
+        ]
+    });
+    
+    distribution.addBehavior("/translation", new origins.RestApiOrigin(api), {
+        cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
+        allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,
+        viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    });
+    s3Bucket.grantReadWrite(lambdaTranslation);
+
     // Lambda - gesture
     const lambdaGesture = new lambda.DockerImageFunction(this, `lambda-gesture-for-${projectName}`, {
       description: 'lambda for gesture',
