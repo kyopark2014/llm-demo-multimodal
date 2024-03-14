@@ -145,25 +145,23 @@ function connect(endpoint, type) {
                 console.log('received (message): ', response.msg);                  
                 addReceivedMessage(response.request_id, response.msg);  
 
-                if (action == 'general') {
+                if (action == 'general' && response.action != 'general') { // do action
                     action = response.action                      
                     console.log('start action: ', action)                    
                     do_action(action)
                 }
-                else {
-                    if(response.action == 'general') {   // clear action
-                        console.log('stop action: ', action)
-                        clear_timer()
-                    }
-                    else if(action != response.action) { // exchange action
-                        console.log('exchange action from' + action + ' to '+ response.action)
-                        clear_timer()
-                        action = response.action  
-                        do_action(action)
-                    }
-                    else {  // remain action
-                        console.log('remain current action: ', response.action)
-                    }
+                else if(action != 'general' && response.action == 'general') {   // clear action
+                    console.log('stop action: ', action)
+                    clear_timer()
+                }
+                else if(action != response.action) { // exchange action
+                    console.log('exchange action from' + action + ' to '+ response.action)
+                    clear_timer()
+                    action = response.action  
+                    do_action(action)
+                }
+                else {  // remain action
+                    console.log('remain current action: ', response.action)
                 }
             }                
             else if(response.status == 'istyping') {
