@@ -210,12 +210,7 @@ let tm_action;
 function do_action(action) {
     console.log('->action: ', action);
 
-    if(action == 'greeting')
-        greeting();    
-    else if(action == 'gesture')
-        gesture();
-    else 
-        greeting();    
+    image_processing(action);
     clear_timer();
 
     if(action != 'general') {
@@ -913,42 +908,12 @@ function preview() {
     }, 'image/png');
 }
 
-function greeting() {
+function image_processing(action) {
     canvas.getContext('2d').drawImage(previewPlayer, 0, 0, canvas.width, canvas.height);
     drawingIndex = 0;
-    console.log('event for greeting');
+    console.log('event for ', action);
 
-    const uri = "greeting";
-    const xhr = new XMLHttpRequest();
-
-    xhr.open("POST", uri, true);
-
-    xhr.onreadystatechange = () => {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            let result = JSON.parse(xhr.responseText);
-            console.log("result: " + JSON.stringify(result));
-
-            requestId = uuidv4();
-
-            notification = '\n\n[도움말] Action을 멈추려면 \'그만\'이라고 하세요.'
-            addReceivedMessage(requestId, result.msg+notification); 
-        }
-        else {
-            console.log("response: " + xhr.responseText);
-        }
-    };
-    
-    canvas.toBlob(function (blob) {
-        xhr.send(blob);
-    }, {type: 'image/png'});
-}
-
-function gesture() {
-    canvas.getContext('2d').drawImage(previewPlayer, 0, 0, canvas.width, canvas.height);
-    drawingIndex = 0;
-    console.log('event for gesture');
-
-    const uri = "gesture";
+    const uri = action;
     const xhr = new XMLHttpRequest();
 
     xhr.open("POST", uri, true);
@@ -981,9 +946,8 @@ const playButton = document.querySelector(".play-button");
 
 //event
 startButton.addEventListener("click", videoStart);
-imageButton.addEventListener("click", greeting);
+imageButton.addEventListener("click", image_processing('greeting'));
 playButton.addEventListener("click", playSpeech);
-
 
 function getEmotion() {
     // const uri = cloudfrntUrl + "emotion";
