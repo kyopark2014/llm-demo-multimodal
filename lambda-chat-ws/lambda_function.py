@@ -1051,6 +1051,7 @@ def getResponse(connectionId, jsonBody):
                 
                 if isResized:
                     img = img.resize((width, height))
+                    print(f'The image was resized with ({width} / {height})')
                 
                 buffer = BytesIO()
                 img.save(buffer, format="PNG")
