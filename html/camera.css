@@ -29,8 +29,8 @@ html,body{
     
 .video-item > video{
     border: 1px solid red;
-    width: 335px;
-    height: 250px; 
+    width: 670px;
+    height: 500px; 
 }
     
 button,a{
