@@ -700,7 +700,7 @@ def search_intent_using_prompt_engineering(chat, intents, query):
     context = ""
     for i, intent in enumerate(intents):
         idx = i+1
-        context += f"{idx}: {intent['action']}\n"
+        context += f"{idx}. {intent['action']}\n"
     print('context: ', context)
     
     system = (
@@ -729,7 +729,7 @@ def search_intent_using_prompt_engineering(chat, intents, query):
         output = result.content        
         output_without_tag = output[output.find('<result>')+8:len(output)-9] # remove <result> 
         
-        action = output_without_tag[output_without_tag.find(':')+2:]
+        action = output_without_tag[output_without_tag.find('.')+2:]
         print('action: ', action)
         
         for intent in intents:
