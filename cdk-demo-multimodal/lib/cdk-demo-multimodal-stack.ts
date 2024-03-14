@@ -92,7 +92,7 @@ const claude2 = [
   }
 ];
 
-const profile_of_LLMs = claude3_haiku;
+const profile_of_LLMs = claude2;
 
 export class CdkDemoMultimodalStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
