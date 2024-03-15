@@ -936,7 +936,7 @@ function image_processing(action) {
 
 // Camera
 const startButton = document.querySelector(".start-button");
-const previewButton = document.querySelector(".preview-button");
+// const previewButton = document.querySelector(".preview-button");
 const imageButton = document.querySelector(".image-button");
 const playButton = document.querySelector(".play-button");
 
