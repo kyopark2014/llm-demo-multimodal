@@ -855,9 +855,9 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     });
 
 
-    // Lambda - chat (websocket)
-    const roleLambdaRedis = new iam.Role(this, `role-lambda-chat-ws-for-${projectName}`, {
-      roleName: `role-lambda-chat-ws-for-${projectName}-${region}`,
+    // Lambda - redis
+    const roleLambdaRedis = new iam.Role(this, `role-lambda-redis-for-${projectName}`, {
+      roleName: `role-lambda-redis-for-${projectName}-${region}`,
       assumedBy: new iam.CompositePrincipal(
         new iam.ServicePrincipal("lambda.amazonaws.com"),
       )
@@ -866,7 +866,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       managedPolicyArn: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
     });
     roleLambdaRedis.attachInlinePolicy( 
-      new iam.Policy(this, `api-invoke-policy-for-${projectName}`, {
+      new iam.Policy(this, `api-invoke-policy-of-redis-for-${projectName}`, {
         statements: [apiInvokePolicy],
       }),
     );  
