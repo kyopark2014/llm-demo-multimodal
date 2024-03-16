@@ -59,8 +59,7 @@ try:
         pubsub.subscribe(channel)
         for message in pubsub.listen():
             print('message: ', message)
-            if message['data'] != 1:
-                print('data: ', message['data'].decode('utf-8'))
+            print('data: ', message['data'])
 
     except Exception:
         err_msg = traceback.format_exc()
