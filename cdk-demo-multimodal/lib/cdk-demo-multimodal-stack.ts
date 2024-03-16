@@ -882,9 +882,9 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     );
     
     // lambda - redis for voice  
-    const lambdaRedis = new lambda.DockerImageFunction(this, `lambda-redis-for-${projectName}`, {
+ /*   const lambdaRedis = new lambda.DockerImageFunction(this, `lambda-redis-for-${projectName}`, {
       description: 'lambda for redis',
-      functionName: `lambda-redis-api-${projectName}`,
+      functionName: `lambda-redis-for-${projectName}`,
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../../lambda-redis')),
       timeout: cdk.Duration.seconds(300),
       role: roleLambdaRedis,
@@ -896,7 +896,6 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       }
     });
     
-
     // POST method - redis
     const redis_info = api.root.addResource("redis");
     redis_info.addMethod('POST', new apiGateway.LambdaIntegration(lambdaRedis, {
@@ -917,12 +916,12 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       ]
     }); 
 
-    // cloudfront setting for provisioning api
+    // cloudfront setting for redis api
     distribution.addBehavior("/redis", new origins.RestApiOrigin(api), {
       cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
       allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
       viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-    });
+    }); */
 
     // deploy components
     new componentDeployment(scope, `deployment-for-${projectName}`, websocketapi.attrApiId)       
