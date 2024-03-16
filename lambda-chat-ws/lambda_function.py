@@ -59,7 +59,8 @@ try:
         pubsub.subscribe(channel)
         for message in pubsub.listen():
             print('message: ', message)
-            print(message['data'])
+            data = json.load(message['data'])
+            print('data: ', json.dumps(data))
             
     except Exception:
         err_msg = traceback.format_exc()
