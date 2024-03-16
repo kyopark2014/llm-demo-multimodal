@@ -854,6 +854,48 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
     });
 
+    // lambda - redis for voice 
+    const lambdaRedis = new lambda.Function(this, `lambda-redis-for-${projectName}`, {
+      description: 'lambda for redis',
+      functionName: `lambda-redis-api-${projectName}`,
+      handler: 'lambda_function.lambda_handler',
+      runtime: lambda.Runtime.PYTHON_3_11,
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda-redis')),
+      timeout: cdk.Duration.seconds(30),
+      environment: {
+        redisAddress: redisCache.attrRedisEndpointAddress,
+        redisPort: redisCache.attrRedisEndpointPort
+      }
+    });
+
+    // POST method - redis
+    const redis_info = api.root.addResource("redis");
+    redis_info.addMethod('POST', new apiGateway.LambdaIntegration(lambdaRedis, {
+      passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
+      credentialsRole: role,
+      integrationResponses: [{
+        statusCode: '200',
+      }], 
+      proxy:false, 
+    }), {
+      methodResponses: [  
+        {
+          statusCode: '200',
+          responseModels: {
+            'application/json': apiGateway.Model.EMPTY_MODEL,
+          }, 
+        }
+      ]
+    }); 
+
+    // cloudfront setting for provisioning api
+    distribution.addBehavior("/redis", new origins.RestApiOrigin(api), {
+      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
+      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
+      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    });
+
+
     // deploy components
     new componentDeployment(scope, `deployment-for-${projectName}`, websocketapi.attrApiId)       
   }
