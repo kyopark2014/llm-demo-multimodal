@@ -925,7 +925,6 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
     });
 
-
     // deploy components
     new componentDeployment(scope, `deployment-for-${projectName}`, websocketapi.attrApiId)       
   }
