@@ -50,7 +50,7 @@ try:
     
     userId = 'kyopark'
     channel = f"{userId}"    
-    redis_client.publish('kyopark', 'Hello, world!')
+    redis_client.publish(channel, 'Hello, world!')
     try: 
         pubsub = redis_client.pubsub()
         pubsub.subscribe(channel)
