@@ -26,6 +26,7 @@ from langchain.memory import ConversationBufferWindowMemory
 from langchain_community.embeddings import BedrockEmbeddings
 from langchain_community.vectorstores.faiss import FAISS
 from langchain_core.messages import HumanMessage, SystemMessage
+from multiprocessing import Process, Pipe
 
 s3 = boto3.client('s3')
 s3_bucket = os.environ.get('s3_bucket') # bucket name
@@ -890,6 +891,19 @@ def extract_text(chat, img_base64):
     
     return extracted_text
 
+def subscribe_redis(rs):
+    while True:
+        print("waiting message...")
+        
+        try: 
+            res = rs.get_message(timeout=5)
+            if res is not None:
+                print(f"res: {res}")
+        except Exception:
+            err_msg = traceback.format_exc()
+            print('error message: ', err_msg)       
+            raise Exception (f"Not able to connect redis")    
+        
 def getResponse(connectionId, jsonBody):
     print('jsonBody: ', jsonBody)
     
@@ -905,8 +919,8 @@ def getResponse(connectionId, jsonBody):
     print('body: ', body)
     convType = jsonBody['convType']
     print('convType: ', convType)
-    
-    global map_chain, memory_chain, selected_LLM
+            
+    global map_chain, memory_chain, selected_LLM, redis_subscribe
     
     # Multi-LLM
     profile = profile_of_LLMs[selected_LLM]
@@ -929,6 +943,20 @@ def getResponse(connectionId, jsonBody):
 
         allowTime = getAllowTime()
         load_chat_history(userId, allowTime)
+        
+        # for Redis
+        channel = f"{userId}"    
+        try: 
+            rs = rd.subscribe(channel=channel)
+            print('successfully subscribed for channel: ', channel)    
+            
+        except Exception:
+            err_msg = traceback.format_exc()
+            print('error message: ', err_msg)                    
+            raise Exception ("Not able to request to LLM")
+        
+        process = Process(target=subscribe_redis, args=(rs))
+        process.start()
     
     # load action
     if userId in action_dict:
@@ -1129,7 +1157,7 @@ def getResponse(connectionId, jsonBody):
         selected_LLM = 0
     else:
         selected_LLM = selected_LLM + 1
-        
+    
     return msg
 
 def lambda_handler(event, context):
