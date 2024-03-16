@@ -599,6 +599,8 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
         callLogTableName: callLogTableName,
         connection_url: connection_url,
         profile_of_LLMs:JSON.stringify(claude3_haiku),
+        redisAddress: redisCache.attrRedisEndpointAddress,
+        redisPort: redisCache.attrRedisEndpointPort
       }
     });     
     lambdaChatWebsocket.grantInvoke(new iam.ServicePrincipal('apigateway.amazonaws.com'));  
