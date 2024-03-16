@@ -10,6 +10,8 @@ import * as apiGateway from 'aws-cdk-lib/aws-apigateway';
 import * as s3Deploy from "aws-cdk-lib/aws-s3-deployment";
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as apigatewayv2 from 'aws-cdk-lib/aws-apigatewayv2';
+import * as elasticache from 'aws-cdk-lib/aws-elasticache';
+import * as ec2 from "aws-cdk-lib/aws-ec2";
 
 const region = process.env.CDK_DEFAULT_REGION;    
 const debug = false;
@@ -173,6 +175,94 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       description: 'The domain name of the Distribution',
     });
 
+    const vpc = new ec2.Vpc(this, `vpc-for-${projectName}`, {
+      maxAzs: 3,
+      cidr: "10.32.0.0/24",
+      natGateways: 1,
+      subnetConfiguration: [
+        {
+          name: `subnet-for-${projectName}`,
+          subnetType: ec2.SubnetType.PRIVATE_ISOLATED
+        },
+      ],
+    });
+
+    const redisSubnetGroup = new elasticache.CfnSubnetGroup(
+      this,`redis-subnet-group-for-${projectName}`,
+      {
+        description: "Subnet group for the redis cluster",
+        subnetIds: vpc.publicSubnets.map((ps) => ps.subnetId),
+        cacheSubnetGroupName: "Redis-Subnet-Group",
+      }
+    );
+
+    const redisSecurityGroup = new ec2.SecurityGroup(
+      this, `redis-security-group-for-${projectName}`,
+      {
+        vpc: vpc,
+        allowAllOutbound: true,
+        description: "Security group for the redis cluster",
+      }
+    );
+
+    // Redis
+    const redisCache = new elasticache.CfnCacheCluster(this, `redis-for-${projectName}`, {
+      engine: 'redis',
+      cacheNodeType: 'cache.t3.small',
+      numCacheNodes: 1,
+      clusterName: `redis-for-${projectName}`,
+      vpcSecurityGroupIds: [redisSecurityGroup.securityGroupId],
+      cacheSubnetGroupName: redisSubnetGroup.ref,
+      engineVersion: "6.2",
+
+      
+      // the properties below are optional
+    /*  autoMinorVersionUpgrade: false,
+      cacheParameterGroupName: 'cacheParameterGroupName',
+      cacheSecurityGroupNames: ['cacheSecurityGroupNames'],
+      engineVersion: 'engineVersion',
+      ipDiscovery: 'ipDiscovery',
+      logDeliveryConfigurations: [{
+        destinationDetails: {
+          cloudWatchLogsDetails: {
+            logGroup: 'logGroup',
+          },
+          kinesisFirehoseDetails: {
+            deliveryStream: 'deliveryStream',
+          },
+        },
+        destinationType: 'destinationType',
+        logFormat: 'logFormat',
+        logType: 'logType',
+      }],
+      networkType: 'networkType',
+      notificationTopicArn: 'notificationTopicArn',
+      port: 123,
+      preferredAvailabilityZone: 'preferredAvailabilityZone',
+      preferredAvailabilityZones: ['preferredAvailabilityZones'],
+      preferredMaintenanceWindow: 'preferredMaintenanceWindow',
+      snapshotArns: ['snapshotArns'],
+      snapshotName: 'snapshotName',
+      snapshotRetentionLimit: 123,
+      snapshotWindow: 'snapshotWindow',
+      tags: [{
+        key: 'key',
+        value: 'value',
+      }],
+      transitEncryptionEnabled: false, */
+      
+    });
+    
+    redisCache.addDependsOn(redisSubnetGroup);
+    new cdk.CfnOutput(this, `CacheEndpointUrl-for-${projectName}`, {
+      value: redisCache.attrRedisEndpointAddress,
+    });
+
+    new cdk.CfnOutput(this, `CachePort-for-${projectName}`, {
+      value: redisCache.attrRedisEndpointPort,
+    });
+
+    // Lambda (chat) - Role
     const roleLambda = new iam.Role(this, `role-lambda-chat-for-${projectName}`, {
       roleName: `role-lambda-chat-for-${projectName}-${region}`,
       assumedBy: new iam.CompositePrincipal(

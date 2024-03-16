@@ -875,20 +875,36 @@ function videoStart() {
     navigator.mediaDevices.getUserMedia({ video: true, audio: false })
         .then(stream => {
             previewPlayer.srcObject = stream;
-
             console.log('video started!')
+        })
+}
+
+function audioStart() {    
+    navigator.mediaDevices.getUserMedia({ video: false, audio: true })
+        .then(stream => {
+            console.log('audio started!')
 
             // use MediaStream Recording API
             const recorder = new MediaRecorder(stream);
+            recorder.mimeType = 'audio/ogg'
             recorder.ondataavailable = event => {   // fires every one second and passes an BlobEvent
                 const blob = event.data;  // get the Blob from the event
 
                 console.log('recored event #', count);
                 count = count + 1;
 
-                const objectURL = URL.createObjectURL(blob)
-                audio_file = objectURL
-                console.log("audio url: ", audio_file);
+                // Create anchor tag
+                var blobURL = URL.createObjectURL(blob);
+                // document.write('<a href="' + blobURL + '">' + blobURL + '</a>');
+                console.log('blobURL: ', blobURL)
+
+                let downloadLink = document.createElement('a')
+                downloadLink.download = 'audio'+count+'.ogg'
+                downloadLink.href = blobURL
+                downloadLink.click() 
+
+                // let audio = new Audio(blob);
+                // audio.play();
 
                 // and send that blob to the server...
             };            
