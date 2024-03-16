@@ -49,7 +49,7 @@ try:
     print('Redis was connected')
     
     userId = 'kyopark'
-    channel = f"{userId}"    
+    channel = 'kyopark'    
     redis_client.publish(channel, 'Hello, world!')
     try: 
         pubsub = redis_client.pubsub()
