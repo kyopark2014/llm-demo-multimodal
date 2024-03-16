@@ -48,7 +48,23 @@ try:
     #rd.flushdb() # delete previous messages
     print('Redis was connected')
     
-    redis_client.publish('my-channel', 'Hello, world!')
+    redis_client.publish('kyopark', 'Hello, world!')
+    
+    userId = 'kyopark'
+    channel = f"{userId}"    
+    try: 
+        pubsub = redis_client.pubsub()
+        pubsub.subscribe(channel)
+        print('successfully subscribed for channel: ', channel)    
+        
+        pubsub.subscribe(channel)
+        for message in pubsub.listen():
+            print(message['data'].decode('utf-8'))
+            
+    except Exception:
+        err_msg = traceback.format_exc()
+        print('error message: ', err_msg)                    
+        raise Exception ("Not able to request to Redis")
     
 except Exception:
     err_msg = traceback.format_exc()
