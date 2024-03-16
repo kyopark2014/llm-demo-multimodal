@@ -589,8 +589,8 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../../lambda-chat-ws')),
       timeout: cdk.Duration.seconds(300),
       role: roleLambdaWebsocket,  
-      // vpc: vpc,  // for Redis
-      // securityGroups: [lambdaSG],
+      vpc: vpc,  // for Redis
+      securityGroups: [lambdaSG],
       environment: {
         bedrock_region: bedrock_region,
         s3_bucket: s3Bucket.bucketName,
@@ -889,8 +889,8 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../../lambda-redis')),
       timeout: cdk.Duration.seconds(300),
       role: roleLambdaRedis,
-      // vpc: vpc,  // for Redis
-      // securityGroups: [lambdaSG],
+      vpc: vpc,  // for Redis
+      securityGroups: [lambdaSG],
       environment: {
         redisAddress: redisCache.attrRedisEndpointAddress,
         redisPort: redisCache.attrRedisEndpointPort
