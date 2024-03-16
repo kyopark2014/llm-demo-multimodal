@@ -588,8 +588,8 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       functionName: `lambda-chat-ws-for-${projectName}`,
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../../lambda-chat-ws')),
       timeout: cdk.Duration.seconds(300),
-      role: roleLambdaWebsocket,  // for Redis
-      vpc: vpc,
+      role: roleLambdaWebsocket,  
+      vpc: vpc,  // for Redis
       securityGroups: [lambdaSG],
       environment: {
         bedrock_region: bedrock_region,
@@ -854,11 +854,41 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
     });
 
+
+    // Lambda - chat (websocket)
+    const roleLambdaRedis = new iam.Role(this, `role-lambda-chat-ws-for-${projectName}`, {
+      roleName: `role-lambda-chat-ws-for-${projectName}-${region}`,
+      assumedBy: new iam.CompositePrincipal(
+        new iam.ServicePrincipal("lambda.amazonaws.com"),
+      )
+    });
+    roleLambdaRedis.addManagedPolicy({
+      managedPolicyArn: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+    });
+    roleLambdaRedis.attachInlinePolicy( 
+      new iam.Policy(this, `api-invoke-policy-for-${projectName}`, {
+        statements: [apiInvokePolicy],
+      }),
+    );  
+
+    // For Redis
+    roleLambdaRedis.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName("AmazonElastiCacheFullAccess")
+    );
+    roleLambdaRedis.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName(
+        "service-role/AWSLambdaENIManagementAccess"
+      )
+    );
+    
     // lambda - redis for voice 
     const lambdaRedis = new lambda.Function(this, `lambda-redis-for-${projectName}`, {
       description: 'lambda for redis',
       functionName: `lambda-redis-api-${projectName}`,
       handler: 'lambda_function.lambda_handler',
+      role: roleLambdaRedis,
+      vpc: vpc,  // for Redis
+      securityGroups: [lambdaSG],
       runtime: lambda.Runtime.PYTHON_3_11,
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda-redis')),
       timeout: cdk.Duration.seconds(30),
