@@ -955,8 +955,8 @@ def getResponse(connectionId, jsonBody):
             print('error message: ', err_msg)                    
             raise Exception ("Not able to request to LLM")
         
-        process = Process(target=subscribe_redis, args=(rs))
-        process.start()
+        #process = Process(target=subscribe_redis, args=(rs))
+        #process.start()
     
     # load action
     if userId in action_dict:
