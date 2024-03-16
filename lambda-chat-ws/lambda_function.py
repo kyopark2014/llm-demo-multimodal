@@ -38,8 +38,10 @@ doc_prefix = s3_prefix+'/'
 
 # for Redis
 redisAddress = os.environ.get('redisAddress')
+print('redisAddress: ',redisAddress)
 redisPort = os.environ.get('redisPort')
-
+print('redisPort: ',redisPort)
+"""
 try: 
     rd = redis.StrictRedis(host=redisAddress, port=redisPort, db=0)    
     #rd.flushdb() # delete previous messages
@@ -49,6 +51,7 @@ except Exception:
     err_msg = traceback.format_exc()
     print('error message: ', err_msg)                    
     raise Exception ("Not able to request to LLM")
+"""
     
 profile_of_LLMs = json.loads(os.environ.get('profile_of_LLMs'))
 selected_LLM = 0
