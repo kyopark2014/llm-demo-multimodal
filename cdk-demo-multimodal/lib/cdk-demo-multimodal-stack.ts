@@ -881,7 +881,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       )
     );
     
-    // lambda - redis for voice 
+    // lambda - redis for voice  
     const lambdaRedis = new lambda.DockerImageFunction(this, `lambda-redis-for-${projectName}`, {
       description: 'lambda for redis',
       functionName: `lambda-redis-api-${projectName}`,
