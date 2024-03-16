@@ -882,7 +882,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     );
     
     // lambda - redis for voice  
- /*   const lambdaRedis = new lambda.DockerImageFunction(this, `lambda-redis-for-${projectName}`, {
+    const lambdaRedis = new lambda.DockerImageFunction(this, `lambda-redis-for-${projectName}`, {
       description: 'lambda for redis',
       functionName: `lambda-redis-for-${projectName}`,
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../../lambda-redis')),
@@ -921,7 +921,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
       allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
       viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-    }); */
+    }); 
 
     // deploy components
     new componentDeployment(scope, `deployment-for-${projectName}`, websocketapi.attrApiId)       
