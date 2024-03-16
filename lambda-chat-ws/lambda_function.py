@@ -44,7 +44,7 @@ print('redisPort: ',redisPort)
 
 try: 
     #rd = redis.StrictRedis(host=redisAddress, port=redisPort, db=0)    
-    redis_client = redis.Redis(host=redisAddress, port=redisPort, db=0)    
+    redis_client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)    
     #rd.flushdb() # delete previous messages
     print('Redis was connected')
     
