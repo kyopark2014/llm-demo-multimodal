@@ -175,7 +175,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       description: 'The domain name of the Distribution',
     });
 
-    const vpc = new ec2.Vpc(this, `vpc-for-${projectName}`, {
+    const myvpc = new ec2.Vpc(this, `vpc-for-${projectName}`, {
       maxAzs: 3,
       cidr: "10.32.0.0/24",
       //natGateways: 1,
@@ -195,7 +195,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       this,`redis-subnet-group-for-${projectName}`,
       {
         description: "Subnet group for the redis cluster",
-        subnetIds: vpc.publicSubnets.map((ps) => ps.subnetId),
+        subnetIds: myvpc.publicSubnets.map((ps) => ps.subnetId),
         cacheSubnetGroupName: "Redis-Subnet-Group",
       }
     );
@@ -203,7 +203,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     const redisSecurityGroup = new ec2.SecurityGroup(
       this, `redis-security-group-for-${projectName}`,
       {
-        vpc: vpc,
+        vpc: myvpc,
         allowAllOutbound: true,
         description: "Security group for the redis cluster",
       }
