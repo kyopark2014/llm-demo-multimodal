@@ -43,7 +43,8 @@ redisPort = os.environ.get('redisPort')
 print('redisPort: ',redisPort)
 
 try: 
-    rd = redis.StrictRedis(host=redisAddress, port=redisPort, db=0)    
+    #rd = redis.StrictRedis(host=redisAddress, port=redisPort, db=0)    
+    redis_client = redis.Redis(host=redisAddress, port=redisPort, db=0)    
     #rd.flushdb() # delete previous messages
     print('Redis was connected')
     
@@ -894,8 +895,12 @@ def extract_text(chat, img_base64):
     
     return extracted_text
 
-def subscribe_redis(rs):
+def subscribe_redis(pubsub, channel):
+    pubsub.subscribe(channel)
+    for message in pubsub.listen():
+        print(message['data'].decode('utf-8'))
     #while True:
+    """
         print("waiting message...")
         
         try: 
@@ -906,6 +911,7 @@ def subscribe_redis(rs):
             err_msg = traceback.format_exc()
             print('error message: ', err_msg)       
             raise Exception (f"Not able to connect redis")    
+    """
         
 def getResponse(connectionId, jsonBody):
     print('jsonBody: ', jsonBody)
@@ -923,7 +929,7 @@ def getResponse(connectionId, jsonBody):
     convType = jsonBody['convType']
     print('convType: ', convType)
             
-    global map_chain, memory_chain, selected_LLM, rs
+    global map_chain, memory_chain, selected_LLM, pubsub
     
     # Multi-LLM
     profile = profile_of_LLMs[selected_LLM]
@@ -951,14 +957,15 @@ def getResponse(connectionId, jsonBody):
         # for Redis
         channel = f"{userId}"    
         try: 
-            rs = rd.subscribe(channel=channel)
+            pubsub = redis_client.pubsub()
+            pubsub.subscribe(channel)
             print('successfully subscribed for channel: ', channel)    
             
         except Exception:
             err_msg = traceback.format_exc()
             print('error message: ', err_msg)                    
-            raise Exception ("Not able to request to LLM")
-        process = Process(target=subscribe_redis, args=(rs))
+            raise Exception ("Not able to request to Redis")
+        process = Process(target=subscribe_redis, args=(pubsub, channel))
         process.start()
     
     # load action
