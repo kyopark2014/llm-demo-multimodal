@@ -945,6 +945,7 @@ def getResponse(connectionId, jsonBody):
         load_chat_history(userId, allowTime)
         
         # for Redis
+        """
         channel = f"{userId}"    
         try: 
             rs = rd.subscribe(channel=channel)
@@ -954,7 +955,7 @@ def getResponse(connectionId, jsonBody):
             err_msg = traceback.format_exc()
             print('error message: ', err_msg)                    
             raise Exception ("Not able to request to LLM")
-        
+        """
         #process = Process(target=subscribe_redis, args=(rs))
         #process.start()
     
