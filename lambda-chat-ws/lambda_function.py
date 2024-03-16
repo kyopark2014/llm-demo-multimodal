@@ -947,6 +947,7 @@ def getResponse(connectionId, jsonBody):
 
         allowTime = getAllowTime()
         load_chat_history(userId, allowTime)
+        print('history was loaded')
         
         # for Redis
         """
