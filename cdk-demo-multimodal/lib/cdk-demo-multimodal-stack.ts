@@ -176,24 +176,16 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     });
 
     const vpc = new ec2.Vpc(this, `vpc-for-${projectName}`, {
-      maxAzs: 3,
+      maxAzs: 1,
       cidr: "10.32.0.0/24",
-      // natGateways: 1,
+      natGateways: 1,
       subnetConfiguration: [
-      /*  {
+        {
           name: `public-subnet-for-${projectName}`,
           subnetType: ec2.SubnetType.PUBLIC
-        }, */
+        }, 
         {
-          name: `private-subnet1-for-${projectName}`,
-          subnetType: ec2.SubnetType.PRIVATE_ISOLATED
-        },
-        {
-          name: `private-subnet2-for-${projectName}`,
-          subnetType: ec2.SubnetType.PRIVATE_ISOLATED
-        },
-        {
-          name: `private-subnet3-for-${projectName}`,
+          name: `private-subnet-for-${projectName}`,
           subnetType: ec2.SubnetType.PRIVATE_ISOLATED
         },
       ],
