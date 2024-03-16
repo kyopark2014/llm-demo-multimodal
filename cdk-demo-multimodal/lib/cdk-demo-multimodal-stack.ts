@@ -287,28 +287,6 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
         statements: [BedrockPolicy],
       }),
     );     
-
-    // For Redis
-    roleLambda.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName("AmazonElastiCacheFullAccess")
-    );
-
-    roleLambda.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AWSLambdaENIManagementAccess"
-      )
-    );
-    const lambdaSG = new ec2.SecurityGroup(this, `lambda-sg-for-${projectName}`, {
-      vpc: vpc,
-      allowAllOutbound: true,
-      securityGroupName: "redis-lambdaFn Security Group",
-    });
-
-    lambdaSG.connections.allowTo(
-      redisSecurityGroup,
-      ec2.Port.tcp(6379),
-      "Allow this lambda function connect to the redis cache"
-    );
     
     // role
     const role = new iam.Role(this, `api-role-for-${projectName}`, {
@@ -583,12 +561,34 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       }),
     );  
 
+    // For Redis
+    roleLambdaWebsocket.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName("AmazonElastiCacheFullAccess")
+    );
+
+    roleLambdaWebsocket.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName(
+        "service-role/AWSLambdaENIManagementAccess"
+      )
+    );
+    const lambdaSG = new ec2.SecurityGroup(this, `lambda-sg-for-${projectName}`, {
+      vpc: vpc,
+      allowAllOutbound: true,
+      securityGroupName: "redis-lambdaFn Security Group",
+    });
+
+    lambdaSG.connections.allowTo(
+      redisSecurityGroup,
+      ec2.Port.tcp(6379),
+      "Allow this lambda function connect to the redis cache"
+    );
+    
     const lambdaChatWebsocket = new lambda.DockerImageFunction(this, `lambda-chat-ws-for-${projectName}`, {
       description: 'lambda for chat using websocket',
       functionName: `lambda-chat-ws-for-${projectName}`,
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../../lambda-chat-ws')),
       timeout: cdk.Duration.seconds(300),
-      role: roleLambdaWebsocket,
+      role: roleLambdaWebsocket,  // for Redis
       vpc: vpc,
       securityGroups: [lambdaSG],
       environment: {
