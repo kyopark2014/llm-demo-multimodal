@@ -892,7 +892,7 @@ def extract_text(chat, img_base64):
     return extracted_text
 
 def subscribe_redis(rs):
-    while True:
+    #while True:
         print("waiting message...")
         
         try: 
