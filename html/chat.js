@@ -20,7 +20,7 @@ const feedback = document.getElementById('feedback');
 feedback.style.display = 'none'; 
 
 let webSocket
-let isConnected = false;
+let isConnected;
 if(protocol == 'WEBSOCKET') {
     webSocket = connect(endpoint, 'initial');
 }
@@ -89,7 +89,9 @@ function ping() {
     tm = setTimeout(function () {
         console.log('reconnect...');    
         
+        isConnected = false
         webSocket = connect(endpoint, 'reconnect');
+        
     }, 5000);
 }
 function pong() {
@@ -129,7 +131,8 @@ function connect(endpoint, type) {
     };
 
     // message 
-    ws.onmessage = function (event) {        
+    ws.onmessage = function (event) {     
+        isConnected = true;   
         if (event.data.substr(1,8) == "__pong__") {
             console.log('<-pong');
             pong();
@@ -197,6 +200,7 @@ function connect(endpoint, type) {
     // error
     ws.onerror = function (error) {
         console.log(error);
+        isConnected = false;
 
         ws.close();
         console.log('the session will be closed');
