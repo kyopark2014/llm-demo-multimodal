@@ -43,6 +43,7 @@ redisPort = os.environ.get('redisPort')
 try: 
     rd = redis.StrictRedis(host=redisAddress, port=redisPort, db=0)    
     #rd.flushdb() # delete previous messages
+    print('Redis was connected')
     
 except Exception:
     err_msg = traceback.format_exc()
