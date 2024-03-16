@@ -48,6 +48,8 @@ try:
     #rd.flushdb() # delete previous messages
     print('Redis was connected')
     
+    redis_client.publish('my-channel', 'Hello, world!')
+    
 except Exception:
     err_msg = traceback.format_exc()
     print('error message: ', err_msg)                    
@@ -965,8 +967,8 @@ def getResponse(connectionId, jsonBody):
             err_msg = traceback.format_exc()
             print('error message: ', err_msg)                    
             raise Exception ("Not able to request to Redis")
-        process = Process(target=subscribe_redis, args=(pubsub, channel))
-        process.start()
+        #process = Process(target=subscribe_redis, args=(pubsub, channel))
+        #process.start()
     
     # load action
     if userId in action_dict:
