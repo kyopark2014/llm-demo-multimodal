@@ -882,21 +882,20 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     );
     
     // lambda - redis for voice 
-    const lambdaRedis = new lambda.Function(this, `lambda-redis-for-${projectName}`, {
+    const lambdaRedis = new lambda.DockerImageFunction(this, `lambda-redis-for-${projectName}`, {
       description: 'lambda for redis',
       functionName: `lambda-redis-api-${projectName}`,
-      handler: 'lambda_function.lambda_handler',
+      code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../../lambda-redis')),
+      timeout: cdk.Duration.seconds(300),
       role: roleLambdaRedis,
       vpc: vpc,  // for Redis
       securityGroups: [lambdaSG],
-      runtime: lambda.Runtime.PYTHON_3_11,
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda-redis')),
-      timeout: cdk.Duration.seconds(30),
       environment: {
         redisAddress: redisCache.attrRedisEndpointAddress,
         redisPort: redisCache.attrRedisEndpointPort
       }
     });
+    
 
     // POST method - redis
     const redis_info = api.root.addResource("redis");
