@@ -886,7 +886,7 @@ function videoStart() {
                 console.log('recored event #', count);
                 count = count + 1;
 
-                const objectURL = URL.createObjectURL(object)
+                const objectURL = URL.createObjectURL(blob)
                 audio_file = objectURL
                 console.log("audio url: ", audio_file);
 
