@@ -1,12 +1,12 @@
+const protocol = 'WEBSOCKET'; // WEBSOCKET 
+const langstate = 'korean'; // korean or english
+
 // Common
 let userId = localStorage.getItem('userId'); // set userID if exists 
 if(userId=="") {
     userId = uuidv4();
 }
 console.log('userId: ', userId);
-
-const protocol = 'WEBSOCKET'; // WEBSOCKET 
-const langstate = 'korean'; // korean or english
 
 // earn endpoint 
 let endpoint = localStorage.getItem('wss_url');
@@ -879,16 +879,20 @@ function videoStart() {
             console.log('video started!')
 
             // use MediaStream Recording API
-        /*    const recorder = new MediaRecorder(stream);
+            const recorder = new MediaRecorder(stream);
             recorder.ondataavailable = event => {   // fires every one second and passes an BlobEvent
                 const blob = event.data;  // get the Blob from the event
 
                 console.log('recored event #', count);
                 count = count + 1;
 
+                const objectURL = URL.createObjectURL(object)
+                audio_file = objectURL
+                console.log("audio url: ", audio_file);
+
                 // and send that blob to the server...
             };            
-            recorder.start(1000); // make data available event fire every one second */
+            recorder.start(10000); // make data available event fire every one second 
         })
 }
 
