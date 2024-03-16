@@ -41,7 +41,7 @@ redisAddress = os.environ.get('redisAddress')
 print('redisAddress: ',redisAddress)
 redisPort = os.environ.get('redisPort')
 print('redisPort: ',redisPort)
-"""
+
 try: 
     rd = redis.StrictRedis(host=redisAddress, port=redisPort, db=0)    
     #rd.flushdb() # delete previous messages
@@ -51,7 +51,6 @@ except Exception:
     err_msg = traceback.format_exc()
     print('error message: ', err_msg)                    
     raise Exception ("Not able to request to LLM")
-"""
     
 profile_of_LLMs = json.loads(os.environ.get('profile_of_LLMs'))
 selected_LLM = 0
@@ -946,11 +945,10 @@ def getResponse(connectionId, jsonBody):
         map_chain[userId] = memory_chain
 
         allowTime = getAllowTime()
-        #load_chat_history(userId, allowTime)
+        load_chat_history(userId, allowTime)
         print('history was loaded')
         
         # for Redis
-        """
         channel = f"{userId}"    
         try: 
             rs = rd.subscribe(channel=channel)
@@ -960,9 +958,8 @@ def getResponse(connectionId, jsonBody):
             err_msg = traceback.format_exc()
             print('error message: ', err_msg)                    
             raise Exception ("Not able to request to LLM")
-        """
-        #process = Process(target=subscribe_redis, args=(rs))
-        #process.start()
+        process = Process(target=subscribe_redis, args=(rs))
+        process.start()
     
     # load action
     if userId in action_dict:
