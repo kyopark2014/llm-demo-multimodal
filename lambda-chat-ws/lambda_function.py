@@ -48,10 +48,9 @@ try:
     #rd.flushdb() # delete previous messages
     print('Redis was connected')
     
-    redis_client.publish('kyopark', 'Hello, world!')
-    
     userId = 'kyopark'
     channel = f"{userId}"    
+    redis_client.publish('kyopark', 'Hello, world!')
     try: 
         pubsub = redis_client.pubsub()
         pubsub.subscribe(channel)
@@ -60,7 +59,7 @@ try:
         pubsub.subscribe(channel)
         for message in pubsub.listen():
             print('message: ', message)
-            #print(message['data'].decode('utf-8'))
+            print(message['data'])
             
     except Exception:
         err_msg = traceback.format_exc()
