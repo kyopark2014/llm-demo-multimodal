@@ -42,7 +42,6 @@ print('redisAddress: ',redisAddress)
 redisPort = os.environ.get('redisPort')
 print('redisPort: ',redisPort)
 
-"""
 try: 
     #rd = redis.StrictRedis(host=redisAddress, port=redisPort, db=0)    
     redis_client = redis.Redis(host=redisAddress, port=redisPort, db=0)    
@@ -55,7 +54,6 @@ except Exception:
     err_msg = traceback.format_exc()
     print('error message: ', err_msg)                    
     raise Exception ("Not able to request to LLM")
-"""
     
 profile_of_LLMs = json.loads(os.environ.get('profile_of_LLMs'))
 selected_LLM = 0
@@ -899,10 +897,22 @@ def extract_text(chat, img_base64):
     
     return extracted_text
 
-def subscribe_redis(pubsub, channel):
-    pubsub.subscribe(channel)
-    for message in pubsub.listen():
-        print(message['data'].decode('utf-8'))
+def subscribe_redis(redis_client, userId):
+    channel = f"{userId}"    
+    try: 
+        pubsub = redis_client.pubsub()
+        pubsub.subscribe(channel)
+        print('successfully subscribed for channel: ', channel)    
+        
+        pubsub.subscribe(channel)
+        for message in pubsub.listen():
+            print(message['data'].decode('utf-8'))
+            
+    except Exception:
+        err_msg = traceback.format_exc()
+        print('error message: ', err_msg)                    
+        raise Exception ("Not able to request to Redis")
+    
     #while True:
     """
         print("waiting message...")
@@ -959,19 +969,7 @@ def getResponse(connectionId, jsonBody):
         print('history was loaded')
         
         # for Redis
-        """
-        channel = f"{userId}"    
-        try: 
-            pubsub = redis_client.pubsub()
-            pubsub.subscribe(channel)
-            print('successfully subscribed for channel: ', channel)    
-            
-        except Exception:
-            err_msg = traceback.format_exc()
-            print('error message: ', err_msg)                    
-            raise Exception ("Not able to request to Redis")
-        """
-        #process = Process(target=subscribe_redis, args=(pubsub, channel))
+        #process = Process(target=subscribe_redis, args=(redis_client, userId))
         #process.start()
     
     # load action
