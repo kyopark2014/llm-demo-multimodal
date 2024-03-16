@@ -12,6 +12,7 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as apigatewayv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import * as elasticache from 'aws-cdk-lib/aws-elasticache';
 import * as ec2 from "aws-cdk-lib/aws-ec2";
+import { Role, ManagedPolicy, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 
 const region = process.env.CDK_DEFAULT_REGION;    
 const debug = false;
@@ -285,7 +286,29 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       new iam.Policy(this, `bedrock-policy-lambda-chat-for-${projectName}`, {
         statements: [BedrockPolicy],
       }),
-    );      
+    );     
+
+    // For Redis
+    roleLambda.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName("AmazonElastiCacheFullAccess")
+    );
+
+    roleLambda.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName(
+        "service-role/AWSLambdaENIManagementAccess"
+      )
+    );
+    const lambdaSG = new ec2.SecurityGroup(this, `lambda-sg-for-${projectName}`, {
+      vpc: vpc,
+      allowAllOutbound: true,
+      securityGroupName: "redis-lambdaFn Security Group",
+    });
+
+    lambdaSG.connections.allowTo(
+      redisSecurityGroup,
+      ec2.Port.tcp(6379),
+      "Allow this lambda function connect to the redis cache"
+    );
     
     // role
     const role = new iam.Role(this, `api-role-for-${projectName}`, {
@@ -566,6 +589,8 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../../lambda-chat-ws')),
       timeout: cdk.Duration.seconds(300),
       role: roleLambdaWebsocket,
+      vpc: vpc,
+      securityGroups: [lambdaSG],
       environment: {
         bedrock_region: bedrock_region,
         s3_bucket: s3Bucket.bucketName,
