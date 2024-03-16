@@ -195,7 +195,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       this,`redis-subnet-group-for-${projectName}`,
       {
         description: "Subnet group for the redis cluster",
-        subnetIds: myvpc.publicSubnets.map((ps) => ps.subnetId),
+        subnetIds: myvpc.privateSubnets.map((ps) => ps.subnetId),
         cacheSubnetGroupName: "Redis-Subnet-Group",
       }
     );
