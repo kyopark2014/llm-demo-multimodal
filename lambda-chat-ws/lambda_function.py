@@ -42,7 +42,7 @@ redisPort = os.environ.get('redisPort')
 
 try: 
     rd = redis.StrictRedis(host=redisAddress, port=redisPort, db=0)    
-    rd.flushdb() # delete previous messages
+    #rd.flushdb() # delete previous messages
     
 except Exception:
     err_msg = traceback.format_exc()
@@ -920,7 +920,7 @@ def getResponse(connectionId, jsonBody):
     convType = jsonBody['convType']
     print('convType: ', convType)
             
-    global map_chain, memory_chain, selected_LLM, redis_subscribe
+    global map_chain, memory_chain, selected_LLM, rs
     
     # Multi-LLM
     profile = profile_of_LLMs[selected_LLM]
