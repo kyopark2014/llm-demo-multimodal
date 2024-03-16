@@ -181,7 +181,11 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       natGateways: 1,
       subnetConfiguration: [
         {
-          name: `subnet-for-${projectName}`,
+          name: `public-subnet-for-${projectName}`,
+          subnetType: ec2.SubnetType.PUBLIC
+        },
+        {
+          name: `private-subnet-for-${projectName}`,
           subnetType: ec2.SubnetType.PRIVATE_ISOLATED
         },
       ],
