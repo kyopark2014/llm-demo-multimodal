@@ -175,7 +175,7 @@ function connect(endpoint, type) {
                 let current = new Date();
                 let timestr = getTime(current);
 
-                let requestId = response.request_id.value;
+                let requestId = response.request_id;
                 addSentMessage(requestId, timestr, response.msg);
             }      
             else if(response.status == 'istyping') {
