@@ -89,7 +89,7 @@ def initiate_redis():
         print('error message: ', err_msg)                    
         raise Exception ("Not able to request to redis")        
     
-#initiate_redis()
+initiate_redis()
     
 profile_of_LLMs = json.loads(os.environ.get('profile_of_LLMs'))
 selected_LLM = 0
