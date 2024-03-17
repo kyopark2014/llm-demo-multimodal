@@ -977,7 +977,7 @@ def getResponse(connectionId, jsonBody):
         map_chain[userId] = memory_chain
 
         allowTime = getAllowTime()
-        # load_chat_history(userId, allowTime)
+        load_chat_history(userId, allowTime)
         print('history was loaded')
         
         # for Redis

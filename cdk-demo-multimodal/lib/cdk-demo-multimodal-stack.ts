@@ -197,16 +197,16 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       {
         description: "Subnet group for the redis cluster",
         subnetIds: vpc.publicSubnets.map((ps) => ps.subnetId),
-        cacheSubnetGroupName: "Redis-Subnet-Group",
+        cacheSubnetGroupName: `redis-subnet-group-${projectName}`,
       }
     );
 
-    const redisSecurityGroup = new ec2.SecurityGroup(this, `redis-security-group-for-${projectName}`,
+    const redisSecurityGroup = new ec2.SecurityGroup(this, `redis-sg-for-${projectName}`,
       {
         vpc: vpc,
         allowAllOutbound: true,
         description: "Security group for the redis cluster",
-        securityGroupName: `redis-security-group-for-${projectName}`,
+        securityGroupName: `redis-sg-for-${projectName}`,
       }
     );
 
@@ -219,43 +219,6 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       vpcSecurityGroupIds: [redisSecurityGroup.securityGroupId],
       cacheSubnetGroupName: redisSubnetGroup.ref,
       engineVersion: "6.2",
-
-      
-      // the properties below are optional
-    /*  autoMinorVersionUpgrade: false,
-      cacheParameterGroupName: 'cacheParameterGroupName',
-      cacheSecurityGroupNames: ['cacheSecurityGroupNames'],
-      engineVersion: 'engineVersion',
-      ipDiscovery: 'ipDiscovery',
-      logDeliveryConfigurations: [{
-        destinationDetails: {
-          cloudWatchLogsDetails: {
-            logGroup: 'logGroup',
-          },
-          kinesisFirehoseDetails: {
-            deliveryStream: 'deliveryStream',
-          },
-        },
-        destinationType: 'destinationType',
-        logFormat: 'logFormat',
-        logType: 'logType',
-      }],
-      networkType: 'networkType',
-      notificationTopicArn: 'notificationTopicArn',
-      port: 123,
-      preferredAvailabilityZone: 'preferredAvailabilityZone',
-      preferredAvailabilityZones: ['preferredAvailabilityZones'],
-      preferredMaintenanceWindow: 'preferredMaintenanceWindow',
-      snapshotArns: ['snapshotArns'],
-      snapshotName: 'snapshotName',
-      snapshotRetentionLimit: 123,
-      snapshotWindow: 'snapshotWindow',
-      tags: [{
-        key: 'key',
-        value: 'value',
-      }],
-      transitEncryptionEnabled: false, */
-      
     });
     
     redisCache.addDependsOn(redisSubnetGroup);
