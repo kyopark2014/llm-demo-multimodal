@@ -1022,6 +1022,7 @@ def getResponse(jsonBody):
         
         process = Process(target=subscribe_redis, args=(redis_client, channel))
         process.start()
+        process.join()
         
         """
         pubsub = redis_client.pubsub()
