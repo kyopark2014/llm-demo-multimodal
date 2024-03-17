@@ -44,7 +44,11 @@ print('redisPort: ',redisPort)
 
 
 
-def subscribe_redis(pubsub):    
+def subscribe_redis(redis_client, channel):    
+    pubsub = redis_client.pubsub()
+    pubsub.subscribe(channel)
+    print('successfully subscribed for channel: ', channel)    
+            
     for message in pubsub.listen():
         print('message: ', message)
         if  message['data'] !=1:
@@ -67,31 +71,22 @@ def subscribe_redis(pubsub):
     
 def initiate_redis():
     try: 
-        #rd = redis.StrictRedis(host=redisAddress, port=redisPort, db=0)    
+        #redis_client = redis.StrictRedis(host=redisAddress, port=redisPort, db=0)    
         redis_client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)    
-        #rd.flushdb() # delete previous messages
+        #redis_client.flushdb() # delete previous messages
         print('Redis was connected')
         
         userId = 'kyopark'
         channel = 'kyopark'    
         redis_client.publish(channel, 'Hello, world!')
-        try: 
-            pubsub = redis_client.pubsub()
-            pubsub.subscribe(channel)
-            print('successfully subscribed for channel: ', channel)    
-            
-            process = Process(target=subscribe_redis, args=(pubsub))
-            process.start()
-
-        except Exception:
-            err_msg = traceback.format_exc()
-            print('error message: ', err_msg)                    
-            raise Exception ("Not able to request to Redis")
         
+        process = Process(target=subscribe_redis, args=(redis_client, channel))
+        process.start()
+
     except Exception:
         err_msg = traceback.format_exc()
         print('error message: ', err_msg)                    
-        raise Exception ("Not able to request to LLM")        
+        raise Exception ("Not able to request to redis")        
     
 initiate_redis()
     
