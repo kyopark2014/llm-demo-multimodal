@@ -525,33 +525,6 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
         statements: [apiInvokePolicy],
       }),
     );  
-
-    // For Redis
-    roleLambdaWebsocket.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName("AmazonElastiCacheFullAccess")
-    );
-
-    roleLambdaWebsocket.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AWSLambdaENIManagementAccess"
-      )
-    );
-    const lambdaSG = new ec2.SecurityGroup(this, `lambda-sg-for-${projectName}`, {
-      description: `security group of lambda for ${projectName}`,      
-      vpc: vpc,
-      allowAllOutbound: true,
-      securityGroupName: `lambda-sg-for-${projectName}`,
-    });
-
-    lambdaSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allTcp(), 'allow all access from the world');
-    // Peer.anyIpv4(), Peer.anyIpv6(), Peer.ipv4(), Peer.ipv6(), Peer.prefixList(), Peer.securityGroupId(), EndpointGroup.connectionsPeer(), ipv4('10.200.0.0/24')
-    // ec2.Port.tcp(80) allTcp(), allTraffic(), tcp(port), ec2.Port.tcp(5439)
-
-    lambdaSG.connections.allowTo(
-      redisSecurityGroup,
-      ec2.Port.tcp(6379),
-      "Allow this lambda function connect to the redis cache"
-    );
     
     const lambdaChatWebsocket = new lambda.DockerImageFunction(this, `lambda-chat-ws-for-${projectName}`, {
       description: 'lambda for chat using websocket',
@@ -559,9 +532,6 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../../lambda-chat-ws')),
       timeout: cdk.Duration.seconds(300),
       role: roleLambdaWebsocket,  
-      vpc: vpc,  // for Redis
-      securityGroups: [lambdaSG],
-      // allowPublicSubnet: true,
       environment: {
         bedrock_region: bedrock_region,
         s3_bucket: s3Bucket.bucketName,
@@ -571,8 +541,6 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
         connection_url: connection_url,
         profile_of_LLMs:JSON.stringify(claude3_haiku),
         //profile_of_LLMs:JSON.stringify(claude3_sonnet),
-        redisAddress: redisCache.attrRedisEndpointAddress,
-        redisPort: redisCache.attrRedisEndpointPort
       }
     });     
     lambdaChatWebsocket.grantInvoke(new iam.ServicePrincipal('apigateway.amazonaws.com'));  
@@ -826,7 +794,13 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
     });
 
+    // deploy components
+    new componentDeployment(scope, `deployment-for-${projectName}`, websocketapi.attrApiId)    
 
+
+    ///////////////////////////////////////////
+    // Voice Stream
+    ///////////////////////////////////////////
     // Lambda - redis
     const roleLambdaRedis = new iam.Role(this, `role-lambda-redis-for-${projectName}`, {
       roleName: `role-lambda-redis-for-${projectName}-${region}`,
@@ -851,6 +825,23 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       ManagedPolicy.fromAwsManagedPolicyName(
         "service-role/AWSLambdaENIManagementAccess"
       )
+    );
+
+    const lambdaSG = new ec2.SecurityGroup(this, `lambda-sg-for-${projectName}`, {
+      description: `security group of lambda for ${projectName}`,      
+      vpc: vpc,
+      allowAllOutbound: true,
+      securityGroupName: `lambda-sg-for-${projectName}`,
+    });
+
+    lambdaSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allTcp(), 'allow all access from the world');
+    // Peer.anyIpv4(), Peer.anyIpv6(), Peer.ipv4(), Peer.ipv6(), Peer.prefixList(), Peer.securityGroupId(), EndpointGroup.connectionsPeer(), ipv4('10.200.0.0/24')
+    // ec2.Port.tcp(80) allTcp(), allTraffic(), tcp(port), ec2.Port.tcp(5439)
+
+    lambdaSG.connections.allowTo(
+      redisSecurityGroup,
+      ec2.Port.tcp(6379),
+      "Allow this lambda function connect to the redis cache"
     );
     
     // lambda - redis for voice  
@@ -895,8 +886,171 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
     }); 
 
+    // voice stream api gateway
+    // API Gateway
+    const voiceWebsocketapi = new apigatewayv2.CfnApi(this, `voice-ws-api-for-${projectName}`, {
+      description: 'API Gateway for voice using websocket',
+      apiKeySelectionExpression: "$request.header.x-api-key",
+      name: 'voice-ws-api-for-'+projectName,
+      protocolType: "WEBSOCKET", // WEBSOCKET or HTTP
+      routeSelectionExpression: "$request.body.action",     
+    });  
+    voiceWebsocketapi.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY); // DESTROY, RETAIN
+
+    new cdk.CfnOutput(this, 'voice-api-identifier', {
+      value: voiceWebsocketapi.attrApiId,
+      description: 'The Voice API identifier.',
+    });
+
+    const voice_wss_url = `wss://${voiceWebsocketapi.attrApiId}.execute-api.${region}.amazonaws.com/${stage}`;
+    new cdk.CfnOutput(this, 'voice-web-socket-url', {
+      value: voice_wss_url,
+      
+      description: 'The URL of Voice Web Socket',
+    });
+
+    const voice_connection_url = `https://${voiceWebsocketapi.attrApiId}.execute-api.${region}.amazonaws.com/${stage}`;
+    new cdk.CfnOutput(this, 'voice-connection-url', {
+      value: voice_connection_url,
+      
+      description: 'The URL of voice connection',
+    });
+
+    // Lambda - voice (websocket)
+    const roleLambdaVoiceWebsocket = new iam.Role(this, `role-lambda-voice-ws-for-${projectName}`, {
+      roleName: `role-lambda-voice-ws-for-${projectName}-${region}`,
+      assumedBy: new iam.CompositePrincipal(
+        new iam.ServicePrincipal("lambda.amazonaws.com"),
+      )
+    });
+    roleLambdaVoiceWebsocket.addManagedPolicy({
+      managedPolicyArn: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+    });
+    roleLambdaVoiceWebsocket.attachInlinePolicy( 
+      new iam.Policy(this, `voice-api-invoke-policy-for-${projectName}`, {
+        statements: [apiInvokePolicy],
+      }),
+    );  
+
+    // For Redis
+    roleLambdaVoiceWebsocket.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName("AmazonElastiCacheFullAccess")
+    );
+
+    roleLambdaVoiceWebsocket.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName(
+        "service-role/AWSLambdaENIManagementAccess"
+      )
+    );
+        
+    const lambdaVoiceWebsocket = new lambda.DockerImageFunction(this, `lambda-voice-ws-for-${projectName}`, {
+      description: 'lambda for voice using websocket',
+      functionName: `lambda-voice-ws-for-${projectName}`,
+      code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../../lambda-voice-ws')),
+      timeout: cdk.Duration.seconds(300),
+      role: roleLambdaVoiceWebsocket,  
+      vpc: vpc,  // for Redis
+      securityGroups: [lambdaSG],
+      // allowPublicSubnet: true,
+      environment: {
+        path: 'https://'+distribution.domainName+'/',   
+        connection_url: voice_connection_url,
+        redisAddress: redisCache.attrRedisEndpointAddress,
+        redisPort: redisCache.attrRedisEndpointPort
+      }
+    });     
+    lambdaVoiceWebsocket.grantInvoke(new iam.ServicePrincipal('apigateway.amazonaws.com'));  
+    
+    new cdk.CfnOutput(this, 'function-voice-ws-arn', {
+      value: lambdaVoiceWebsocket.functionArn,
+      description: 'The arn of lambda voice webchat.',
+    }); 
+
+    const voiceIntegrationUri = `arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${lambdaVoiceWebsocket.functionArn}/invocations`;    
+    const cfnVoiceIntegration = new apigatewayv2.CfnIntegration(this, `voice-api-integration-for-${projectName}`, {
+      apiId: voiceWebsocketapi.attrApiId,
+      integrationType: 'AWS_PROXY',
+      credentialsArn: role.roleArn,
+      connectionType: 'INTERNET',
+      description: 'Integration for connect',
+      integrationUri: integrationUri,
+    });  
+
+    new apigatewayv2.CfnRoute(this, `voice-api-route-for-${projectName}-connect`, {
+      apiId: voiceWebsocketapi.attrApiId,
+      routeKey: "$connect", 
+      apiKeyRequired: false,
+      authorizationType: "NONE",
+      operationName: 'connect',
+      target: `integrations/${cfnIntegration.ref}`,      
+    }); 
+
+    new apigatewayv2.CfnRoute(this, `voice-api-route-for-${projectName}-disconnect`, {
+      apiId: voiceWebsocketapi.attrApiId,
+      routeKey: "$disconnect", 
+      apiKeyRequired: false,
+      authorizationType: "NONE",
+      operationName: 'disconnect',
+      target: `integrations/${cfnIntegration.ref}`,      
+    }); 
+
+    new apigatewayv2.CfnRoute(this, `voice-api-route-for-${projectName}-default`, {
+      apiId: voiceWebsocketapi.attrApiId,
+      routeKey: "$default", 
+      apiKeyRequired: false,
+      authorizationType: "NONE",
+      operationName: 'default',
+      target: `integrations/${cfnIntegration.ref}`,      
+    }); 
+
+    new apigatewayv2.CfnStage(this, `voice-api-stage-for-${projectName}`, {
+      apiId: voiceWebsocketapi.attrApiId,
+      stageName: stage
+    }); 
+
+    // lambda - voice provisioning 
+    const lambdaVoiceProvisioning = new lambda.Function(this, `lambda-voice-provisioning-for-${projectName}`, {
+      description: 'lambda to earn voice provisioning info',
+      functionName: `lambda-voice-provisioning-api-${projectName}`,
+      handler: 'lambda_function.lambda_handler',
+      runtime: lambda.Runtime.PYTHON_3_11,
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda-voice-provisioning')),
+      timeout: cdk.Duration.seconds(30),
+      environment: {
+        wss_url: voice_wss_url,
+      }
+    });
+
+    // POST method - provisioning
+    const voice_provisioning_info = api.root.addResource("voice_provisioning");
+    voice_provisioning_info.addMethod('POST', new apiGateway.LambdaIntegration(lambdaVoiceProvisioning, {
+      passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
+      credentialsRole: role,
+      integrationResponses: [{
+        statusCode: '200',
+      }], 
+      proxy:false, 
+    }), {
+      methodResponses: [  
+        {
+          statusCode: '200',
+          responseModels: {
+            'application/json': apiGateway.Model.EMPTY_MODEL,
+          }, 
+        }
+      ]
+    }); 
+
+    // cloudfront setting for provisioning api
+    distribution.addBehavior("/voice_provisioning", new origins.RestApiOrigin(api), {
+      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
+      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
+      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    });
+
     // deploy components
-    new componentDeployment(scope, `deployment-for-${projectName}`, websocketapi.attrApiId)       
+    new voiceComponentDeployment(scope, `voice-deployment-for-${projectName}`, voiceWebsocketapi.attrApiId)   
+  
   }
 }
 
@@ -907,6 +1061,18 @@ export class componentDeployment extends cdk.Stack {
     new apigatewayv2.CfnDeployment(this, `api-deployment-for-${projectName}`, {
       apiId: appId,
       description: "deploy api gateway using websocker",  // $default
+      stageName: stage
+    });   
+  }
+} 
+
+export class voiceComponentDeployment extends cdk.Stack {
+  constructor(scope: Construct, id: string, appId: string, props?: cdk.StackProps) {    
+    super(scope, id, props);
+
+    new apigatewayv2.CfnDeployment(this, `voice-api-deployment-for-${projectName}`, {
+      apiId: appId,
+      description: "deploy voice api gateway using websocker",  // $default
       stageName: stage
     });   
   }

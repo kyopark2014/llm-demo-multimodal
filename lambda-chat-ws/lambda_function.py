@@ -36,84 +36,6 @@ callLogTableName = os.environ.get('callLogTableName')
 bedrock_region = os.environ.get('bedrock_region', 'us-west-2')
 path = os.environ.get('path')
 doc_prefix = s3_prefix+'/'
-
-# for Redis
-redisAddress = os.environ.get('redisAddress')
-print('redisAddress: ',redisAddress)
-redisPort = os.environ.get('redisPort')
-print('redisPort: ',redisPort)
-
-
-
-def subscribe_redis(redis_client, channel):    
-    pubsub = redis_client.pubsub()
-    pubsub.subscribe(channel)
-    print('successfully subscribed for channel: ', channel)    
-            
-    for message in pubsub.listen():
-        print('message: ', message)
-                
-        if message['data'] != 1:            
-            msg = message['data'].encode('utf-8').decode('unicode_escape')
-            msg = msg[1:len(msg)-1]
-            print('voice msg: ', msg)    
-                    
-            #deliveryVoiceMessage(action_dict[userId], msg)
-            deliveryVoiceMessage("general", msg)
-    """
-    pubsub = redis_client.pubsub()
-    pubsub.subscribe(channel)
-    print('successfully subscribed for channel: ', channel)    
-    
-    for message in pubsub.listen():
-        print('message: ', message)
-        
-        if message['data'] != 1:        
-            msg = message['data'].encode('utf-8').decode('unicode_escape')
-            print('voice msg: ', msg)    
-            deliveryVoiceMessage(action_dict[channel], msg)
-    """        
-    """
-    while True:
-        for message in pubsub.listen():
-            print('message: ', message)
-            if  message['data'] !=1:
-                msg = message['data']
-                print('voice msg: ', msg)        
-                deliveryVoiceMessage(action_dict['userId'], msg)              
-                msg = message['data'].encode('utf-8').decode('unicode_escape')
-                print('voice msg: ', msg)      
-    """
-                
-                
-    
-    #while True:
-    """
-        print("waiting message...")
-        
-        try: 
-            res = rs.get_message(timeout=5)
-            if res is not None:
-                print(f"res: {res}")
-        except Exception:
-            err_msg = traceback.format_exc()
-            print('error message: ', err_msg)       
-            raise Exception (f"Not able to connect redis")    
-    """
-
-def initiate_redis():
-    global redis_client
-    
-    try: 
-        redis_client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)    
-        print('Redis was connected')
-        
-    except Exception:
-        err_msg = traceback.format_exc()
-        print('error message: ', err_msg)                    
-        raise Exception ("Not able to request to redis")        
-    
-initiate_redis()
     
 profile_of_LLMs = json.loads(os.environ.get('profile_of_LLMs'))
 selected_LLM = 0
@@ -1015,14 +937,7 @@ def getResponse(jsonBody):
         allowTime = getAllowTime()
         load_chat_history(userId, allowTime)
         print('history was loaded')
-        
-        # for Redis
-        channel = 'kyopark'    
-        # redis_client.publish(channel, 'Hello, world!')
-        process1 = Process(target=subscribe_redis, args=(redis_client, channel))
-        process1.start()
-        process1.join()
-        
+                
     # load action
     if userId in action_dict:
         print("Action: ", action_dict[userId])
@@ -1254,15 +1169,7 @@ def lambda_handler(event, context):
                 print('request body: ', json.dumps(jsonBody))
 
                 requestId  = jsonBody['request_id']
-                try:
-                    
-                    userId  = jsonBody['user_id']
-                    print('userId: ', userId)
-                                        
-                    #process2 = Process(target=getResponse, args=(jsonBody))
-                    #process2.start()
-                    #process2.join()
-                                        
+                try:                    
                     msg = getResponse(jsonBody)
                     print('msg: ', msg)
                     

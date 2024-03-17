@@ -15,6 +15,15 @@ if(endpoint=="") {
 }
 console.log('endpoint: ', endpoint);
 
+
+// earn voice endpoint 
+let voiceEndpoint = localStorage.getItem('voice_wss_url');
+if(voiceEndpoint=="") {
+    console.log('voice provisioning is required!');
+}
+console.log('voiceEndpoint: ', voiceEndpoint);
+
+
 console.log('feedback...');
 const feedback = document.getElementById('feedback');
 feedback.style.display = 'none'; 
@@ -24,6 +33,13 @@ let isConnected;
 if(protocol == 'WEBSOCKET') {
     webSocket = connect(endpoint, 'initial');
 }
+
+let voiceWebSocket
+let isVoiceConnected;
+if(protocol == 'WEBSOCKET') {
+    voiceWebSocket = voiceConnect(voiceEndpoint, 'initial');
+}
+
 
 HashMap = function() {
     this.map = new Array();
@@ -98,6 +114,23 @@ function pong() {
     clearTimeout(tm);
 }
 
+let voiceTm;
+function voicePing() {
+    console.log('->voice ping');
+    voiceWebSocket.send('__ping__');
+    voiceTm = setTimeout(function () {
+        console.log('voice reconnect...');    
+        
+        isVoiceConnected = false
+        voiceWebSocket = voiceConnect(endpoint, 'reconnect');
+        
+    }, 5000);
+}
+function voicePong() {
+    clearTimeout(voiceTm);
+}
+
+
 function connect(endpoint, type) {
     const ws = new WebSocket(endpoint);
 
@@ -166,18 +199,6 @@ function connect(endpoint, type) {
                     console.log('remain current action: ', response.action)
                 }
             }          
-            else if(response.status == 'redirected') {       
-                feedback.style.display = 'none';      
-                console.log('response: ', response);
-                console.log('requestId: '+response.request_id);
-                console.log('message: '+response.msg);
-
-                let current = new Date();
-                let timestr = getTime(current);
-
-                let requestId = response.request_id;
-                addSentMessage(requestId, timestr, response.msg);
-            }      
             else if(response.status == 'istyping') {
                 feedback.style.display = 'inline';
                 // feedback.innerHTML = '<i>typing a message...</i>'; 
@@ -216,6 +237,70 @@ function connect(endpoint, type) {
 
         ws.close();
         console.log('the session will be closed');
+    };
+
+    return ws;
+}
+
+function voiceConnect(voiceEndpoint, type) {
+    const ws = new WebSocket(voiceEndpoint);
+
+    // connection event
+    ws.onopen = function () {
+        console.log('voice connected...');
+        isVoiceConnected = true;
+
+        if(type == 'initial')
+            setInterval(voicePing, 40000);  // ping interval: 40 seconds
+    };
+
+    // message 
+    ws.onmessage = function (event) {     
+        isConnected = true;   
+        if (event.data.substr(1,8) == "__pong__") {
+            console.log('<-voice pong');
+            voicePong();
+            return;
+        }
+        else {
+            response = JSON.parse(event.data)
+
+             if(response.status == 'redirected') {       
+                feedback.style.display = 'none';      
+                console.log('response: ', response);
+                console.log('requestId: '+response.request_id);
+                console.log('message: '+response.msg);
+
+                let current = new Date();
+                let timestr = getTime(current);
+
+                let requestId = response.request_id;
+                addSentMessage(requestId, timestr, response.msg);
+            }      
+            else if(response.status == 'error') {
+                feedback.style.display = 'none';
+                console.log('error: ', response.msg);
+                addNotifyMessage(response.msg);
+            }   
+        }        
+    };
+
+    // disconnect
+    ws.onclose = function () {
+        console.log('voice disconnected...!');
+        isVoiceConnected = false;
+
+        ws.close();
+        console.log('the voice session will be closed');
+    };
+
+    // error
+    ws.onerror = function (error) {
+        console.log(error);
+        isVoiceConnected = false;
+
+        ws.close();
+        console.log('the voice session will be closed');
     };
 
     return ws;
