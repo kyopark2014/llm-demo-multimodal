@@ -53,12 +53,14 @@ def subscribe_redis(redis_client, channel):
     while True:
         for message in pubsub.listen():
             print('message: ', message)
+            """
             if  message['data'] !=1:
                 msg = message['data']
                 print('voice msg: ', msg)        
                 sendVoiceMessage(action_dict['userId'], msg)              
                 msg = message['data'].encode('utf-8').decode('unicode_escape')
                 print('voice msg: ', msg)      
+            """
                 
                 
     
