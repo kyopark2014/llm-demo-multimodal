@@ -141,8 +141,13 @@ def lambda_handler(event, context):
         
         if routeKey == '$connect':
             print('connected!')
+            
+            channel = 'kyopark'    
+            subscribe_redis(redis_client, channel)
+            
         elif routeKey == '$disconnect':
             print('disconnected!')
+            
         else:
             body = event.get("body", "")
             #print("data[0:8]: ", body[0:8])
@@ -161,8 +166,7 @@ def lambda_handler(event, context):
                     userId  = jsonBody['user_id']
                     print('userId: ', userId)
                                         
-                    channel = 'kyopark'    
-                    subscribe_redis(redis_client, channel)
+                    
                     
                 except Exception:
                     err_msg = traceback.format_exc()
