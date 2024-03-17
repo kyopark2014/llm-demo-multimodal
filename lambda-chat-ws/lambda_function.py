@@ -1016,7 +1016,9 @@ def getResponse(jsonBody):
             if message['data'] != 1:            
                 msg = message['data'].encode('utf-8').decode('unicode_escape')
                 print('voice msg: ', msg)    
-                sendVoiceMessage(action_dict[userId], msg)
+                
+                #sendVoiceMessage(action_dict[userId], msg)
+                sendVoiceMessage("", msg)
                 
         
     # load action
