@@ -1001,12 +1001,12 @@ def getResponse(jsonBody):
         load_chat_history(userId, allowTime)
         print('history was loaded')
         
-        # for Redis
-        channel = 'kyopark'    
-        # redis_client.publish(channel, 'Hello, world!')
+    # for Redis
+    channel = 'kyopark'    
+    # redis_client.publish(channel, 'Hello, world!')
         
-        #process = Process(target=subscribe_redis, args=(redis_client, channel))
-        #process.start()
+    #process = Process(target=subscribe_redis, args=(redis_client, channel))
+    #process.start()
         
     pubsub = redis_client.pubsub()
     pubsub.subscribe(channel)
