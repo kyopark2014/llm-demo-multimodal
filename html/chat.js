@@ -165,7 +165,17 @@ function connect(endpoint, type) {
                 else {  // remain action
                     console.log('remain current action: ', response.action)
                 }
-            }                
+            }          
+            if(response.status == 'redirected') {       
+                feedback.style.display = 'none';      
+                console.log('current: '+action+'next: '+response.msg);
+
+                let current = new Date();
+                let timestr = getTime(current);
+
+                let requestId = uuidv4();
+                // addSentMessage(requestId, timestr, message.value);
+            }      
             else if(response.status == 'istyping') {
                 feedback.style.display = 'inline';
                 // feedback.innerHTML = '<i>typing a message...</i>'; 

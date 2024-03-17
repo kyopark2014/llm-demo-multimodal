@@ -448,13 +448,14 @@ def sendMessage(body):
         raise Exception ("Not able to send a message")
     
 def deliveryVoiceMessage(action, msg):    
-    print('uuid: ', uuid.uuid1())
+    requestId = uuid.uuid1()
+    print('requestId: ', requestId)
     result = {
-        'request_id': "a123456",
+        'request_id': requestId,
         'type': 'voice',
         'action': action,
         'msg': msg,
-        'status': 'completed'
+        'status': 'redirected'
     }
     #print('debug: ', json.dumps(debugMsg))
     sendMessage(result)    
@@ -1020,7 +1021,7 @@ def getResponse(jsonBody):
                 print('voice msg: ', msg)    
                 
                 #deliveryVoiceMessage(action_dict[userId], msg)
-                deliveryVoiceMessage("Nothing", msg)
+                deliveryVoiceMessage("general", msg)
                 
         
     # load action
