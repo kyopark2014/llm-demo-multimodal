@@ -1016,6 +1016,13 @@ def getResponse(jsonBody):
         load_chat_history(userId, allowTime)
         print('history was loaded')
         
+        # for Redis
+        channel = 'kyopark'    
+        # redis_client.publish(channel, 'Hello, world!')
+        process1 = Process(target=subscribe_redis, args=(redis_client, channel))
+        process1.start()
+        process1.join()
+        
     # load action
     if userId in action_dict:
         print("Action: ", action_dict[userId])
@@ -1219,14 +1226,6 @@ def getResponse(jsonBody):
     sendResultMessage(action_dict[userId], msg)  
     
     return msg
-
-
-# for Redis
-channel = 'kyopark'    
-# redis_client.publish(channel, 'Hello, world!')
-process1 = Process(target=subscribe_redis, args=(redis_client, channel))
-process1.start()
-process1.join()
 
 def lambda_handler(event, context):
     # print('event: ', event)    
