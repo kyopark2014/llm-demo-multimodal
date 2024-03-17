@@ -31,7 +31,7 @@ feedback.style.display = 'none';
 let webSocket
 let isConnected;
 if(protocol == 'WEBSOCKET') {
- //   webSocket = connect(endpoint, 'initial');
+    webSocket = connect(endpoint, 'initial');
 }
 
 let voiceWebSocket
@@ -122,7 +122,7 @@ function voicePing() {
         console.log('voice reconnect...');    
         
         isVoiceConnected = false
-        voiceWebSocket = voiceConnect(endpoint, 'reconnect');
+        voiceWebSocket = voiceConnect(voiceEndpoint, 'reconnect');
         
     }, 5000);
 }
