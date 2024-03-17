@@ -359,7 +359,7 @@ def isKorean(text):
         print('Not Korean: ', word_kor)
         return False
 
-def general_conversation(requestId, chat, query):
+def general_conversation(chat, query):
     global time_for_inference, history_length, token_counter_history    
     time_for_inference = history_length = token_counter_history = 0
     
@@ -1081,7 +1081,7 @@ def getResponse(jsonBody):
             memory_chain.chat_memory.add_ai_message(msg)
                     
         elif type == 'document':
-            isTyping(requestId)
+            isTyping()
             
             object = body
             file_type = object[object.rfind('.')+1:len(object)]            
