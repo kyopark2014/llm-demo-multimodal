@@ -53,9 +53,10 @@ def subscribe_redis(redis_client, channel):
     for message in pubsub.listen():
         print('message: ', message)
         
-        msg = message['data'].encode('utf-8').decode('unicode_escape')
-        print('voice msg: ', msg)    
-        sendVoiceMessage(action_dict['userId'], msg)
+        if message['data'] != 1:        
+            msg = message['data'].encode('utf-8').decode('unicode_escape')
+            print('voice msg: ', msg)    
+            sendVoiceMessage(action_dict['userId'], msg)
             
     """
     while True:
@@ -1002,9 +1003,10 @@ def getResponse(jsonBody):
         channel = 'kyopark'    
         # redis_client.publish(channel, 'Hello, world!')
         
-        #process = Process(target=subscribe_redis, args=(redis_client, channel))
-        #process.start()
+        process = Process(target=subscribe_redis, args=(redis_client, channel))
+        process.start()
         
+        """
         pubsub = redis_client.pubsub()
         pubsub.subscribe(channel)
         print('successfully subscribed for channel: ', channel)    
@@ -1012,9 +1014,11 @@ def getResponse(jsonBody):
         for message in pubsub.listen():
             print('message: ', message)
             
-            msg = message['data'].encode('utf-8').decode('unicode_escape')
-            print('voice msg: ', msg)    
-            sendVoiceMessage(action_dict['userId'], msg)
+            if message['data'] != 1:            
+                msg = message['data'].encode('utf-8').decode('unicode_escape')
+                print('voice msg: ', msg)    
+                sendVoiceMessage(action_dict['userId'], msg)
+        """
         
     # load action
     if userId in action_dict:
