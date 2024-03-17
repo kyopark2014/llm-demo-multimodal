@@ -56,7 +56,7 @@ def subscribe_redis(redis_client, channel):
         if message['data'] != 1:        
             msg = message['data'].encode('utf-8').decode('unicode_escape')
             print('voice msg: ', msg)    
-            deliverVoiceMessage(action_dict[channel], msg)
+            deliveryVoiceMessage(action_dict[channel], msg)
             
     """
     while True:
@@ -65,7 +65,7 @@ def subscribe_redis(redis_client, channel):
             if  message['data'] !=1:
                 msg = message['data']
                 print('voice msg: ', msg)        
-                deliverVoiceMessage(action_dict['userId'], msg)              
+                deliveryVoiceMessage(action_dict['userId'], msg)              
                 msg = message['data'].encode('utf-8').decode('unicode_escape')
                 print('voice msg: ', msg)      
     """
@@ -447,7 +447,7 @@ def sendMessage(body):
         print('err_msg: ', err_msg)
         raise Exception ("Not able to send a message")
     
-def deliverVoiceMessage(action, msg):    
+def deliveryVoiceMessage(action, msg):    
     result = {
         'request_id': uuid.uuid1(),
         'type': 'voice',
@@ -1018,8 +1018,8 @@ def getResponse(jsonBody):
                 msg = message['data'].encode('utf-8').decode('unicode_escape')
                 print('voice msg: ', msg)    
                 
-                #deliverVoiceMessage(action_dict[userId], msg)
-                deliverVoiceMessage("", msg)
+                #deliveryVoiceMessage(action_dict[userId], msg)
+                deliveryVoiceMessage("Nothing", msg)
                 
         
     # load action
