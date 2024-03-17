@@ -995,8 +995,8 @@ def getResponse(jsonBody):
         channel = 'kyopark'    
         # redis_client.publish(channel, 'Hello, world!')
         
-        #process = Process(target=subscribe_redis, args=(redis_client, channel))
-        #process.start()
+        process = Process(target=subscribe_redis, args=(redis_client, channel))
+        process.start()
     
     # load action
     if userId in action_dict:
