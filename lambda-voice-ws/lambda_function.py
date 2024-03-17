@@ -108,7 +108,8 @@ def deliveryVoiceMessage(action, msg):
         'msg': msg,
         'status': 'redirected'
     }
-    #print('debug: ', json.dumps(debugMsg))
+    print('result: ', json.dumps(result))
+    
     sendMessage(result)      
 
 def sendResultMessage(action, msg):    
