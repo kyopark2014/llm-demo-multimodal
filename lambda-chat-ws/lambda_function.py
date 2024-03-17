@@ -11,6 +11,7 @@ import traceback
 import base64
 import redis
 
+import uuid
 from botocore.config import Config
 from io import BytesIO
 from urllib import parse
@@ -49,12 +50,15 @@ def subscribe_redis(redis_client, channel):
     pubsub.subscribe(channel)
     print('successfully subscribed for channel: ', channel)    
             
-    while(True):
+    while True:
         for message in pubsub.listen():
             print('message: ', message)
             if  message['data'] !=1:
                 # print('data: ', message['data'].decode('unicode_escape'))
-                print('data: ', message['data'].encode('utf-8').decode('unicode_escape'))        
+                msg = message['data'].encode('utf-8').decode('unicode_escape')
+                print('voice msg: ', msg)      
+                
+                sendVoiceMessage(action_dict['userId'], msg)
     
     #while True:
     """
@@ -69,21 +73,14 @@ def subscribe_redis(redis_client, channel):
             print('error message: ', err_msg)       
             raise Exception (f"Not able to connect redis")    
     """
-    
+
 def initiate_redis():
+    global redis_client
+    
     try: 
-        #redis_client = redis.StrictRedis(host=redisAddress, port=redisPort, db=0)    
         redis_client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)    
-        #redis_client.flushdb() # delete previous messages
         print('Redis was connected')
         
-        userId = 'kyopark'
-        channel = 'kyopark'    
-        redis_client.publish(channel, 'Hello, world!')
-        
-        process = Process(target=subscribe_redis, args=(redis_client, channel))
-        process.start()
-
     except Exception:
         err_msg = traceback.format_exc()
         print('error message: ', err_msg)                    
@@ -358,7 +355,7 @@ def isKorean(text):
         print('Not Korean: ', word_kor)
         return False
 
-def general_conversation(connectionId, requestId, chat, query):
+def general_conversation(requestId, chat, query):
     global time_for_inference, history_length, token_counter_history    
     time_for_inference = history_length = token_counter_history = 0
     
@@ -381,14 +378,14 @@ def general_conversation(connectionId, requestId, chat, query):
                 
     chain = prompt | chat    
     try: 
-        isTyping(connectionId, requestId)  
+        isTyping()  
         stream = chain.invoke(
             {
                 "history": history,
                 "input": query,
             }
         )
-        msg = readStreamMsg(connectionId, requestId, stream.content)    
+        msg = readStreamMsg(stream.content)    
                             
         msg = stream.content
         print('msg: ', msg)
@@ -396,21 +393,21 @@ def general_conversation(connectionId, requestId, chat, query):
         err_msg = traceback.format_exc()
         print('error message: ', err_msg)        
             
-        sendErrorMessage(connectionId, requestId, err_msg)    
+        sendErrorMessage(err_msg)    
         raise Exception ("Not able to request to LLM")
     
     return msg
 
-def isTyping(connectionId, requestId):    
+def isTyping():    
     msg_proceeding = {
         'request_id': requestId,
         'msg': 'Proceeding...',
         'status': 'istyping'
     }
     #print('result: ', json.dumps(result))
-    sendMessage(connectionId, msg_proceeding)
+    sendMessage(msg_proceeding)
         
-def readStreamMsg(connectionId, requestId, stream):
+def readStreamMsg(stream):
     msg = ""
     if stream:
         for event in stream:
@@ -423,22 +420,32 @@ def readStreamMsg(connectionId, requestId, stream):
                 'status': 'proceeding'
             }
             #print('result: ', json.dumps(result))
-            sendMessage(connectionId, result)
+            sendMessage(result)
     # print('msg: ', msg)
     return msg
     
-def sendMessage(id, body):
+def sendMessage(body):
     try:
         client.post_to_connection(
-            ConnectionId=id, 
+            ConnectionId=connectionId, 
             Data=json.dumps(body)
         )
     except Exception:
         err_msg = traceback.format_exc()
         print('err_msg: ', err_msg)
         raise Exception ("Not able to send a message")
+    
+def sendVoiceMessage(action, msg):    
+    result = {
+        'request_id': uuid.uuid1(),
+        'action': action,
+        'msg': msg,
+        'status': 'completed'
+    }
+    #print('debug: ', json.dumps(debugMsg))
+    sendMessage(result)    
 
-def sendResultMessage(connectionId, requestId, action, msg):    
+def sendResultMessage(action, msg):    
     result = {
         'request_id': requestId,
         'action': action,
@@ -446,16 +453,16 @@ def sendResultMessage(connectionId, requestId, action, msg):
         'status': 'completed'
     }
     #print('debug: ', json.dumps(debugMsg))
-    sendMessage(connectionId, result)
+    sendMessage(result)
         
-def sendErrorMessage(connectionId, requestId, msg):
+def sendErrorMessage(msg):
     errorMsg = {
         'request_id': requestId,
         'msg': msg,
         'status': 'error'
     }
     print('error: ', json.dumps(errorMsg))
-    sendMessage(connectionId, errorMsg)    
+    sendMessage(errorMsg)    
 
 def load_chat_history(userId, allowTime):
     dynamodb_client = boto3.client('dynamodb')
@@ -939,7 +946,7 @@ def extract_text(chat, img_base64):
     
     return extracted_text
         
-def getResponse(connectionId, jsonBody):
+def getResponse(jsonBody):
     print('jsonBody: ', jsonBody)
     
     userId  = jsonBody['user_id']
@@ -983,6 +990,13 @@ def getResponse(connectionId, jsonBody):
         # for Redis
         #process = Process(target=subscribe_redis, args=(redis_client, userId))
         #process.start()
+        
+        userId = 'kyopark'
+        channel = 'kyopark'    
+        # redis_client.publish(channel, 'Hello, world!')
+        
+        process = Process(target=subscribe_redis, args=(redis_client, channel))
+        process.start()
     
     # load action
     if userId in action_dict:
@@ -1045,7 +1059,7 @@ def getResponse(connectionId, jsonBody):
                     msg  = "The chat memory was intialized in this session."
                 else:            
                     if convType == "normal":
-                        msg = general_conversation(connectionId, requestId, chat, text)    
+                        msg = general_conversation(chat, text)    
                     elif convType == "translation":
                         msg = translate_text(chat, text) 
                     elif convType == "grammar":
@@ -1061,13 +1075,13 @@ def getResponse(connectionId, jsonBody):
                     elif convType == "timestamp-extraction":
                         msg = extract_timestamp(chat, text)  
                     else:
-                        msg = general_conversation(connectionId, requestId, chat, text)  
+                        msg = general_conversation(chat, text)  
                         
             memory_chain.chat_memory.add_user_message(text)
             memory_chain.chat_memory.add_ai_message(msg)
                     
         elif type == 'document':
-            isTyping(connectionId, requestId)
+            isTyping(requestId)
             
             object = body
             file_type = object[object.rfind('.')+1:len(object)]            
@@ -1188,6 +1202,8 @@ def getResponse(connectionId, jsonBody):
 
 def lambda_handler(event, context):
     # print('event: ', event)    
+    global connectionId, requestId
+    
     msg = ""
     if event['requestContext']: 
         connectionId = event['requestContext']['connectionId']        
@@ -1202,7 +1218,7 @@ def lambda_handler(event, context):
             #print("data[0:8]: ", body[0:8])
             if body[0:8] == "__ping__":
                 # print("keep alive!")                
-                sendMessage(connectionId, "__pong__")
+                sendMessage("__pong__")
             else:
                 print('connectionId: ', connectionId)
                 print('routeKey: ', routeKey)
@@ -1212,16 +1228,16 @@ def lambda_handler(event, context):
 
                 requestId  = jsonBody['request_id']
                 try:
-                    msg = getResponse(connectionId, jsonBody)
+                    msg = getResponse(jsonBody)
                     # print('msg: ', msg)
                     
-                    sendResultMessage(connectionId, requestId, action_dict['userId'], msg)  
+                    sendResultMessage(action_dict['userId'], msg)  
                                         
                 except Exception:
                     err_msg = traceback.format_exc()
                     print('err_msg: ', err_msg)
 
-                    sendErrorMessage(connectionId, requestId, err_msg)    
+                    sendErrorMessage(err_msg)    
                     raise Exception ("Not able to send a message")
 
     return {
