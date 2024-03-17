@@ -452,7 +452,6 @@ def deliveryVoiceMessage(action, msg):
     print('requestId: ', requestId)
     result = {
         'request_id': str(requestId),
-        'type': 'voice',
         'action': action,
         'msg': msg,
         'status': 'redirected'

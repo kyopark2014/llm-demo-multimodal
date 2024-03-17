@@ -166,15 +166,17 @@ function connect(endpoint, type) {
                     console.log('remain current action: ', response.action)
                 }
             }          
-            if(response.status == 'redirected') {       
+            else if(response.status == 'redirected') {       
                 feedback.style.display = 'none';      
-                console.log('current: '+action+'next: '+response.msg);
+                console.log('response: ', response);
+                console.log('requestId: '+response.request_id.value);
+                console.log('message: '+response.msg.value);
 
                 let current = new Date();
                 let timestr = getTime(current);
 
-                let requestId = uuidv4();
-                // addSentMessage(requestId, timestr, message.value);
+                let requestId = response.request_id.value;
+                addSentMessage(requestId, timestr, response.msg.value);
             }      
             else if(response.status == 'istyping') {
                 feedback.style.display = 'inline';
