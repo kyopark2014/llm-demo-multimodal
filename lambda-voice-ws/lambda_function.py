@@ -84,9 +84,9 @@ def initiate_redis():
 initiate_redis()
        
 # websocket
-connection_url = os.environ.get('connection_url')
-client = boto3.client('apigatewaymanagementapi', endpoint_url=connection_url)
-print('connection_url: ', connection_url)
+voice_connection_url = os.environ.get('voice_connection_url')
+client = boto3.client('apigatewaymanagementapi', endpoint_url=voice_connection_url)
+print('voice_connection_url: ', voice_connection_url)
     
 def sendMessage(body):
     try:
@@ -137,8 +137,10 @@ def lambda_handler(event, context):
     
     msg = ""
     if event['requestContext']: 
-        connectionId = event['requestContext']['connectionId']        
+        connectionId = event['requestContext']['connectionId']     
+        print('connectionId', connectionId)   
         routeKey = event['requestContext']['routeKey']
+        print('routeKey', routeKey)   
         
         if routeKey == '$connect':
             print('connected!')
