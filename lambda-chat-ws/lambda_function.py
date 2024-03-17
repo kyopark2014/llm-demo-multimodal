@@ -49,11 +49,12 @@ def subscribe_redis(redis_client, channel):
     pubsub.subscribe(channel)
     print('successfully subscribed for channel: ', channel)    
             
-    for message in pubsub.listen():
-        print('message: ', message)
-        if  message['data'] !=1:
-            # print('data: ', message['data'].decode('unicode_escape'))
-            print('data: ', message['data'].encode('utf-8').decode('unicode_escape'))        
+    while(True):
+        for message in pubsub.listen():
+            print('message: ', message)
+            if  message['data'] !=1:
+                # print('data: ', message['data'].decode('unicode_escape'))
+                print('data: ', message['data'].encode('utf-8').decode('unicode_escape'))        
     
     #while True:
     """
