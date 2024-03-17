@@ -28,17 +28,18 @@ console.log('feedback...');
 const feedback = document.getElementById('feedback');
 feedback.style.display = 'none'; 
 
+let voiceWebSocket
+let isVoiceConnected;
+if(protocol == 'WEBSOCKET') {
+    voiceWebSocket = voiceConnect(voiceEndpoint, 'initial');
+}
+
 let webSocket
 let isConnected;
 if(protocol == 'WEBSOCKET') {
     webSocket = connect(endpoint, 'initial');
 }
 
-let voiceWebSocket
-let isVoiceConnected;
-if(protocol == 'WEBSOCKET') {
-    voiceWebSocket = voiceConnect(voiceEndpoint, 'initial');
-}
 
 
 HashMap = function() {
