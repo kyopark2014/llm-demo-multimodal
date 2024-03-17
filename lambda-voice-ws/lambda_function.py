@@ -132,7 +132,7 @@ def sendErrorMessage(msg):
     sendMessage(errorMsg)    
         
 def lambda_handler(event, context):
-    # print('event: ', event)    
+    print('event: ', event)    
     global connectionId, requestId
     
     msg = ""
