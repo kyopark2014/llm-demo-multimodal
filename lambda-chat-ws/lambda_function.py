@@ -42,36 +42,58 @@ print('redisAddress: ',redisAddress)
 redisPort = os.environ.get('redisPort')
 print('redisPort: ',redisPort)
 
-try: 
-    #rd = redis.StrictRedis(host=redisAddress, port=redisPort, db=0)    
-    redis_client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)    
-    #rd.flushdb() # delete previous messages
-    print('Redis was connected')
-    
-    userId = 'kyopark'
-    channel = 'kyopark'    
-    redis_client.publish(channel, 'Hello, world!')
-    try: 
-        pubsub = redis_client.pubsub()
-        pubsub.subscribe(channel)
-        print('successfully subscribed for channel: ', channel)    
-        
-        pubsub.subscribe(channel)
-        for message in pubsub.listen():
-            print('message: ', message)
-            if  message['data'] !=1:
-                # print('data: ', message['data'].decode('unicode_escape'))
-                print('data: ', message['data'].encode('utf-8').decode('unicode_escape'))
 
+
+def subscribe_redis(pubsub):    
+    for message in pubsub.listen():
+        print('message: ', message)
+        if  message['data'] !=1:
+            # print('data: ', message['data'].decode('unicode_escape'))
+            print('data: ', message['data'].encode('utf-8').decode('unicode_escape'))        
+    
+    #while True:
+    """
+        print("waiting message...")
+        
+        try: 
+            res = rs.get_message(timeout=5)
+            if res is not None:
+                print(f"res: {res}")
+        except Exception:
+            err_msg = traceback.format_exc()
+            print('error message: ', err_msg)       
+            raise Exception (f"Not able to connect redis")    
+    """
+    
+def initiate_redis():
+    try: 
+        #rd = redis.StrictRedis(host=redisAddress, port=redisPort, db=0)    
+        redis_client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)    
+        #rd.flushdb() # delete previous messages
+        print('Redis was connected')
+        
+        userId = 'kyopark'
+        channel = 'kyopark'    
+        redis_client.publish(channel, 'Hello, world!')
+        try: 
+            pubsub = redis_client.pubsub()
+            pubsub.subscribe(channel)
+            print('successfully subscribed for channel: ', channel)    
+            
+            process = Process(target=subscribe_redis, args=(pubsub))
+            process.start()
+
+        except Exception:
+            err_msg = traceback.format_exc()
+            print('error message: ', err_msg)                    
+            raise Exception ("Not able to request to Redis")
+        
     except Exception:
         err_msg = traceback.format_exc()
         print('error message: ', err_msg)                    
-        raise Exception ("Not able to request to Redis")
+        raise Exception ("Not able to request to LLM")        
     
-except Exception:
-    err_msg = traceback.format_exc()
-    print('error message: ', err_msg)                    
-    raise Exception ("Not able to request to LLM")
+initiate_redis()
     
 profile_of_LLMs = json.loads(os.environ.get('profile_of_LLMs'))
 selected_LLM = 0
@@ -914,36 +936,6 @@ def extract_text(chat, img_base64):
         raise Exception ("Not able to request to LLM")
     
     return extracted_text
-
-def subscribe_redis(redis_client, userId):
-    channel = f"{userId}"    
-    try: 
-        pubsub = redis_client.pubsub()
-        pubsub.subscribe(channel)
-        print('successfully subscribed for channel: ', channel)    
-        
-        pubsub.subscribe(channel)
-        for message in pubsub.listen():
-            print(message['data'].decode('utf-8'))
-            
-    except Exception:
-        err_msg = traceback.format_exc()
-        print('error message: ', err_msg)                    
-        raise Exception ("Not able to request to Redis")
-    
-    #while True:
-    """
-        print("waiting message...")
-        
-        try: 
-            res = rs.get_message(timeout=5)
-            if res is not None:
-                print(f"res: {res}")
-        except Exception:
-            err_msg = traceback.format_exc()
-            print('error message: ', err_msg)       
-            raise Exception (f"Not able to connect redis")    
-    """
         
 def getResponse(connectionId, jsonBody):
     print('jsonBody: ', jsonBody)

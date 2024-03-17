@@ -154,7 +154,7 @@ def lambda_handler(event, context):
     
     # creating gesture message
     chat = get_chat(profile_of_LLMs, selected_LLM)    
-    query = "그림에서 사람이 보여주는 Guesture를 추출해서 설명해주세요"
+    query = "그림에서 사람이 보여주는 Gesture를 추출해서 설명해주세요"
     msg = generate_gesture_message(chat, img_base64, query)     
     print('gesture msg: ', msg)  
     
