@@ -187,7 +187,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
           name: `public-subnet-for-${projectName}`,
           subnetType: ec2.SubnetType.PUBLIC
         }, 
-       /* {
+      /*  {
           name: `private-subnet-for-${projectName}`,
           subnetType: ec2.SubnetType.PRIVATE_ISOLATED
         }, */
@@ -557,6 +557,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       role: roleLambdaWebsocket,  
       vpc: vpc,  // for Redis
       securityGroups: [lambdaSG],
+      allowPublicSubnet: true,
       environment: {
         bedrock_region: bedrock_region,
         s3_bucket: s3Bucket.bucketName,
@@ -856,6 +857,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(300),
       role: roleLambdaRedis,
       vpc: vpc,  // for Redis
+      allowPublicSubnet: true,
       securityGroups: [lambdaSG],
       environment: {
         redisAddress: redisCache.attrRedisEndpointAddress,
