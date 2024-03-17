@@ -1220,6 +1220,14 @@ def getResponse(jsonBody):
     
     return msg
 
+
+# for Redis
+channel = 'kyopark'    
+# redis_client.publish(channel, 'Hello, world!')
+process1 = Process(target=subscribe_redis, args=(redis_client, channel))
+process1.start()
+process1.join()
+
 def lambda_handler(event, context):
     # print('event: ', event)    
     global connectionId, requestId
@@ -1251,22 +1259,13 @@ def lambda_handler(event, context):
                     
                     userId  = jsonBody['user_id']
                     print('userId: ', userId)
-                    
-                    # for Redis
-                    channel = 'kyopark'    
-                    # redis_client.publish(channel, 'Hello, world!')
-                    
-                    process1 = Process(target=subscribe_redis, args=(redis_client, channel))
-                    process2 = Process(target=getResponse, args=(jsonBody))
-                    
-                    process1.start()
-                    process2.start()
-                    
-                    process1.join()
-                    process2.join()
                                         
-                    #msg = getResponse(jsonBody)
-                    #print('msg: ', msg)
+                    #process2 = Process(target=getResponse, args=(jsonBody))
+                    #process2.start()
+                    #process2.join()
+                                        
+                    msg = getResponse(jsonBody)
+                    print('msg: ', msg)
                     
                 except Exception:
                     err_msg = traceback.format_exc()
