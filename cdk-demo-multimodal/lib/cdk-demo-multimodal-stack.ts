@@ -973,7 +973,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       credentialsArn: role.roleArn,
       connectionType: 'INTERNET',
       description: 'Integration for connect',
-      integrationUri: integrationUri,
+      integrationUri: voiceIntegrationUri,
     });  
 
     new apigatewayv2.CfnRoute(this, `voice-api-route-for-${projectName}-connect`, {
@@ -982,7 +982,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       apiKeyRequired: false,
       authorizationType: "NONE",
       operationName: 'connect',
-      target: `integrations/${cfnIntegration.ref}`,      
+      target: `integrations/${cfnVoiceIntegration.ref}`,      
     }); 
 
     new apigatewayv2.CfnRoute(this, `voice-api-route-for-${projectName}-disconnect`, {
@@ -991,7 +991,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       apiKeyRequired: false,
       authorizationType: "NONE",
       operationName: 'disconnect',
-      target: `integrations/${cfnIntegration.ref}`,      
+      target: `integrations/${cfnVoiceIntegration.ref}`,      
     }); 
 
     new apigatewayv2.CfnRoute(this, `voice-api-route-for-${projectName}-default`, {
@@ -1000,7 +1000,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       apiKeyRequired: false,
       authorizationType: "NONE",
       operationName: 'default',
-      target: `integrations/${cfnIntegration.ref}`,      
+      target: `integrations/${cfnVoiceIntegration.ref}`,      
     }); 
 
     new apigatewayv2.CfnStage(this, `voice-api-stage-for-${projectName}`, {
@@ -1017,7 +1017,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda-voice-provisioning')),
       timeout: cdk.Duration.seconds(30),
       environment: {
-        wss_url: voice_wss_url,
+        voice_wss_url: voice_wss_url,
       }
     });
 

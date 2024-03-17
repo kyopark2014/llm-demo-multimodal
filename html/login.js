@@ -25,6 +25,7 @@ console.log(convtypeInput.value);
 
 // provisioning
 getProvisioningInfo(userId);
+getVoiceProvisioningInfo(userId);
 
 function onSubmit(e) {
     e.preventDefault();
@@ -55,6 +56,34 @@ function getProvisioningInfo(userId) {
             console.log("wss_url: ", wss_url);
 
             localStorage.setItem('wss_url',wss_url);
+        }
+    };
+
+    var requestObj = {
+        "userId": userId
+    }
+    console.log("request: " + JSON.stringify(requestObj));
+
+    var blob = new Blob([JSON.stringify(requestObj)], {type: 'application/json'});
+
+    xhr.send(blob);   
+}
+
+function getVoiceProvisioningInfo(userId) {
+    const uri = "voice_provisioning";
+    const xhr = new XMLHttpRequest();
+
+    xhr.open("POST", uri, true);
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            let response = JSON.parse(xhr.responseText);
+            let voice_provisioning_info = JSON.parse(response['info']);
+            console.log("voice provisioning info: " + JSON.stringify(voice_provisioning_info));
+                        
+            let voice_wss_url = voice_provisioning_info.wss_url;
+            console.log("voice_wss_url: ", voice_wss_url);
+
+            localStorage.setItem('voice_wss_url',voice_wss_url);
         }
     };
 

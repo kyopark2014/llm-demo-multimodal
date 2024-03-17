@@ -9,7 +9,6 @@ import sys
 import re
 import traceback
 import base64
-import redis
 
 import uuid
 from botocore.config import Config
