@@ -953,7 +953,6 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       securityGroups: [lambdaSG],
       // allowPublicSubnet: true,
       environment: {
-        path: 'https://'+distribution.domainName+'/',   
         connection_url: voice_connection_url,
         redisAddress: redisCache.attrRedisEndpointAddress,
         redisPort: redisCache.attrRedisEndpointPort

@@ -31,7 +31,7 @@ feedback.style.display = 'none';
 let webSocket
 let isConnected;
 if(protocol == 'WEBSOCKET') {
-    webSocket = connect(endpoint, 'initial');
+ //   webSocket = connect(endpoint, 'initial');
 }
 
 let voiceWebSocket
