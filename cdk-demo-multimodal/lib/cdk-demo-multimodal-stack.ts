@@ -180,7 +180,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       vpcName: `vpc-for-${projectName}`,
       maxAzs: 1,
       cidr: "10.32.0.0/24",
-      // natGateways: 1,
+      natGateways: 1,
       createInternetGateway: true,
       subnetConfiguration: [
         {
