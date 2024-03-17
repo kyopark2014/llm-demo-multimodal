@@ -56,7 +56,7 @@ def subscribe_redis(redis_client, channel):
         if message['data'] != 1:        
             msg = message['data'].encode('utf-8').decode('unicode_escape')
             print('voice msg: ', msg)    
-            sendVoiceMessage(action_dict['userId'], msg)
+            sendVoiceMessage(action_dict[channel], msg)
             
     """
     while True:
@@ -1016,14 +1016,15 @@ def getResponse(jsonBody):
             if message['data'] != 1:            
                 msg = message['data'].encode('utf-8').decode('unicode_escape')
                 print('voice msg: ', msg)    
-                sendVoiceMessage(action_dict['userId'], msg)
+                sendVoiceMessage(action_dict[userId], msg)
+                
         
     # load action
     if userId in action_dict:
-        print("Action: ", action_dict['userId'])
+        print("Action: ", action_dict[userId])
     else:
         print('There is no action that was previously defined.')
-        action_dict['userId'] = 'general'
+        action_dict[userId] = 'general'
     
     start = int(time.time())    
 
@@ -1064,11 +1065,11 @@ def getResponse(jsonBody):
                 print('Intent message: ', msg)
                 
                 if intent['id'] == 'stop_action':
-                    action_dict['userId'] = 'general'
+                    action_dict[userId] = 'general'
                 else:
-                    action_dict['userId'] = intent['id']
+                    action_dict[userId] = intent['id']
                     
-                print('current intent: ', action_dict['userId'])
+                print('current intent: ', action_dict[userId])
                 
             else:
                 if text == 'clearMemory':
@@ -1218,6 +1219,8 @@ def getResponse(jsonBody):
     else:
         selected_LLM = selected_LLM + 1
     
+    sendResultMessage(action_dict[userId], msg)  
+    
     return msg
 
 def lambda_handler(event, context):
@@ -1249,10 +1252,8 @@ def lambda_handler(event, context):
                 requestId  = jsonBody['request_id']
                 try:
                     msg = getResponse(jsonBody)
-                    # print('msg: ', msg)
+                    print('msg: ', msg)
                     
-                    sendResultMessage(action_dict['userId'], msg)  
-                                        
                 except Exception:
                     err_msg = traceback.format_exc()
                     print('err_msg: ', err_msg)
