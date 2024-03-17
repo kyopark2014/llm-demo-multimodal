@@ -143,7 +143,7 @@ def lambda_handler(event, context):
         if routeKey == '$connect':
             print('connected!')
             
-            deliveryVoiceMessage("general", "hello world!")
+            #deliveryVoiceMessage("general", "hello world!")
             
             print('start subscribing redis.')
             channel = 'kyopark'    
