@@ -169,14 +169,14 @@ function connect(endpoint, type) {
             else if(response.status == 'redirected') {       
                 feedback.style.display = 'none';      
                 console.log('response: ', response);
-                console.log('requestId: '+response.request_id.value);
-                console.log('message: '+response.msg.value);
+                console.log('requestId: '+response.request_id);
+                console.log('message: '+response.msg);
 
                 let current = new Date();
                 let timestr = getTime(current);
 
                 let requestId = response.request_id.value;
-                addSentMessage(requestId, timestr, response.msg.value);
+                addSentMessage(requestId, timestr, response.msg);
             }      
             else if(response.status == 'istyping') {
                 feedback.style.display = 'inline';
