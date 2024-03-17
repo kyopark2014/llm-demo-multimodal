@@ -457,7 +457,7 @@ def deliveryVoiceMessage(action, msg):
         'status': 'redirected'
     }
     #print('debug: ', json.dumps(debugMsg))
-    sendMessage(result)    
+    sendMessage(result)      
 
 def sendResultMessage(action, msg):    
     result = {
@@ -1008,19 +1008,19 @@ def getResponse(jsonBody):
         #process = Process(target=subscribe_redis, args=(redis_client, channel))
         #process.start()
         
-        pubsub = redis_client.pubsub()
-        pubsub.subscribe(channel)
-        print('successfully subscribed for channel: ', channel)    
+    pubsub = redis_client.pubsub()
+    pubsub.subscribe(channel)
+    print('successfully subscribed for channel: ', channel)    
         
-        for message in pubsub.listen():
-            print('message: ', message)
+    for message in pubsub.listen():
+        print('message: ', message)
             
-            if message['data'] != 1:            
-                msg = message['data'].encode('utf-8').decode('unicode_escape')
-                print('voice msg: ', msg)    
+        if message['data'] != 1:            
+            msg = message['data'].encode('utf-8').decode('unicode_escape')
+            print('voice msg: ', msg)    
                 
-                #deliveryVoiceMessage(action_dict[userId], msg)
-                deliveryVoiceMessage("general", msg)
+            #deliveryVoiceMessage(action_dict[userId], msg)
+            deliveryVoiceMessage("general", msg)
                 
         
     # load action
