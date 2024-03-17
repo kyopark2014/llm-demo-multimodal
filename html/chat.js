@@ -34,11 +34,11 @@ if(protocol == 'WEBSOCKET') {
     voiceWebSocket = voiceConnect(voiceEndpoint, 'initial');
 }
 
-let webSocket
+/*let webSocket
 let isConnected;
 if(protocol == 'WEBSOCKET') {
     webSocket = connect(endpoint, 'initial');
-}
+}*/
 
 
 
