@@ -5,6 +5,6 @@
 ![image](https://github.com/kyopark2014/llm-demo-multimodal/assets/52392004/a32e1911-c536-4d14-8bfa-358636daa339)
 
 
-[Amazon Transcribe API](
+[Amazon Transcribe API]
 
 [Amazon Transcribe Streaming SDK](https://github.com/awslabs/amazon-transcribe-streaming-sdk)
