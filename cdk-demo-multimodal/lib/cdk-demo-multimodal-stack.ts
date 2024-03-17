@@ -201,12 +201,12 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       }
     );
 
-    const redisSecurityGroup = new ec2.SecurityGroup(
-      this, `redis-security-group-for-${projectName}`,
+    const redisSecurityGroup = new ec2.SecurityGroup(this, `redis-security-group-for-${projectName}`,
       {
         vpc: vpc,
         allowAllOutbound: true,
         description: "Security group for the redis cluster",
+        securityGroupName: `redis-security-group-for-${projectName}`,
       }
     );
 
@@ -572,9 +572,10 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       )
     );
     const lambdaSG = new ec2.SecurityGroup(this, `lambda-sg-for-${projectName}`, {
+      description: `security group of lambda for ${projectName}`,      
       vpc: vpc,
       allowAllOutbound: true,
-      securityGroupName: "redis-lambdaFn Security Group",
+      securityGroupName: `lambda-sg-for-${projectName}`,
     });
 
     lambdaSG.connections.allowTo(
