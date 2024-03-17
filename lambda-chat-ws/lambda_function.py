@@ -448,8 +448,9 @@ def sendMessage(body):
         raise Exception ("Not able to send a message")
     
 def deliveryVoiceMessage(action, msg):    
+    print('uuid: ', uuid.uuid1())
     result = {
-        'request_id': uuid.uuid1(),
+        'request_id': "a123456",
         'type': 'voice',
         'action': action,
         'msg': msg,
