@@ -1016,31 +1016,6 @@ def getResponse(jsonBody):
         load_chat_history(userId, allowTime)
         print('history was loaded')
         
-        # for Redis
-        channel = 'kyopark'    
-        # redis_client.publish(channel, 'Hello, world!')
-        
-        process = Process(target=subscribe_redis, args=(redis_client, channel))
-        process.start()
-        process.join()
-        
-        """
-        pubsub = redis_client.pubsub()
-        pubsub.subscribe(channel)
-        print('successfully subscribed for channel: ', channel)    
-            
-        for message in pubsub.listen():
-            print('message: ', message)
-                
-            if message['data'] != 1:            
-                msg = message['data'].encode('utf-8').decode('unicode_escape')
-                msg = msg[1:len(msg)-1]
-                print('voice msg: ', msg)    
-                    
-                #deliveryVoiceMessage(action_dict[userId], msg)
-                deliveryVoiceMessage("general", msg)
-        """
-                
     # load action
     if userId in action_dict:
         print("Action: ", action_dict[userId])
@@ -1273,8 +1248,25 @@ def lambda_handler(event, context):
 
                 requestId  = jsonBody['request_id']
                 try:
-                    msg = getResponse(jsonBody)
-                    print('msg: ', msg)
+                    
+                    userId  = jsonBody['user_id']
+                    print('userId: ', userId)
+                    
+                    # for Redis
+                    channel = 'kyopark'    
+                    # redis_client.publish(channel, 'Hello, world!')
+                    
+                    process1 = Process(target=subscribe_redis, args=(redis_client, channel))
+                    process2 = Process(target=getResponse, args=(jsonBody))
+                    
+                    process1.start()
+                    process2.start()
+                    
+                    process1.join()
+                    process2.join()
+                                        
+                    #msg = getResponse(jsonBody)
+                    #print('msg: ', msg)
                     
                 except Exception:
                     err_msg = traceback.format_exc()
