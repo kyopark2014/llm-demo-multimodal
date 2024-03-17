@@ -451,7 +451,7 @@ def deliveryVoiceMessage(action, msg):
     requestId = uuid.uuid1()
     print('requestId: ', requestId)
     result = {
-        'request_id': requestId,
+        'request_id': str(requestId),
         'type': 'voice',
         'action': action,
         'msg': msg,
