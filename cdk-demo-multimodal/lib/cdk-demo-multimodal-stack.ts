@@ -187,10 +187,10 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
           name: `public-subnet-for-${projectName}`,
           subnetType: ec2.SubnetType.PUBLIC
         }, 
-        {
+       /* {
           name: `private-subnet-for-${projectName}`,
           subnetType: ec2.SubnetType.PRIVATE_ISOLATED
-        },
+        }, */
       ],
     });
 

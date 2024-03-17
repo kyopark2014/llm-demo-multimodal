@@ -988,10 +988,6 @@ def getResponse(jsonBody):
         print('history was loaded')
         
         # for Redis
-        #process = Process(target=subscribe_redis, args=(redis_client, userId))
-        #process.start()
-        
-        userId = 'kyopark'
         channel = 'kyopark'    
         # redis_client.publish(channel, 'Hello, world!')
         
