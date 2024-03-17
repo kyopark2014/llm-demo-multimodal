@@ -460,15 +460,20 @@ def sendErrorMessage(connectionId, requestId, msg):
 def load_chat_history(userId, allowTime):
     dynamodb_client = boto3.client('dynamodb')
 
-    response = dynamodb_client.query(
-        TableName=callLogTableName,
-        KeyConditionExpression='user_id = :userId AND request_time > :allowTime',
-        ExpressionAttributeValues={
-            ':userId': {'S': userId},
-            ':allowTime': {'S': allowTime}
-        }
-    )
-    # print('query result: ', response['Items'])
+    try: 
+        response = dynamodb_client.query(
+            TableName=callLogTableName,
+            KeyConditionExpression='user_id = :userId AND request_time > :allowTime',
+            ExpressionAttributeValues={
+                ':userId': {'S': userId},
+                ':allowTime': {'S': allowTime}
+            }
+        )
+        print('query result: ', response['Items'])
+    except Exception:
+        err_msg = traceback.format_exc()
+        print('error message: ', err_msg)                    
+        raise Exception ("Not able to request to DynamoDB")
 
     for item in response['Items']:
         text = item['body']['S']
@@ -949,7 +954,7 @@ def getResponse(connectionId, jsonBody):
     convType = jsonBody['convType']
     print('convType: ', convType)
             
-    global map_chain, memory_chain, selected_LLM, pubsub
+    global map_chain, memory_chain, selected_LLM
     
     # Multi-LLM
     profile = profile_of_LLMs[selected_LLM]
