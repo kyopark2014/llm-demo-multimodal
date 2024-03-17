@@ -543,6 +543,10 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       securityGroupName: `lambda-sg-for-${projectName}`,
     });
 
+    lambdaSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allTcp(), 'allow all access from the world');
+    // Peer.anyIpv4(), Peer.anyIpv6(), Peer.ipv4(), Peer.ipv6(), Peer.prefixList(), Peer.securityGroupId(), EndpointGroup.connectionsPeer(), ipv4('10.200.0.0/24')
+    // ec2.Port.tcp(80) allTcp(), allTraffic(), tcp(port), ec2.Port.tcp(5439)
+
     lambdaSG.connections.allowTo(
       redisSecurityGroup,
       ec2.Port.tcp(6379),
