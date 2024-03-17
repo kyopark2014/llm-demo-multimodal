@@ -1,4 +1,4 @@
-# Multimodel을 이용한 LLM Demo
+# Multimodel을 이용한 Robot Demo
 
 여기에서는 Multimodal을 이용한 LLM Demo를 Robot을 이용해 구현하는것에 대해 설명합니다.
 
