@@ -288,14 +288,15 @@ function voiceConnect(voiceEndpoint, type) {
                 let requestTime = datastr+' '+timestr
 
                 let previous = listMessages.get(requestId); 
-                if (previous == undefined) previous = ""
-                console.log('previosu: ', previous)
+                if (previous == undefined) previous = "";
+                console.log('previosu: ', previous);
                 
                 console.log('length: (previous)'+previous.length+', new:'+query.length);
                 if(query.length > previous.length) {
                     addSentMessage(requestId, timestr, query);
 
                     if(protocol == 'WEBSOCKET' && state=='completed') {
+                        console.log('query: ', query);
                         sendMessage({
                             "user_id": userId,
                             "request_id": requestId,
