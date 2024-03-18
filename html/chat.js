@@ -299,9 +299,6 @@ function voiceConnect(voiceEndpoint, type) {
                         "convType": conversationType
                     })
                 }
-                else {
-                    sendRequest(message.value, requestId, requestTime);
-                }     
             }      
             else if(response.status == 'error') {
                 feedback.style.display = 'none';
