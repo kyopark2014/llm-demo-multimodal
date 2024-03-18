@@ -239,7 +239,6 @@ function connect(endpoint, type) {
     return ws;
 }
 
-previous = "";
 let listMessages = new HashMap(); 
 function voiceConnect(voiceEndpoint, type) {
     const ws = new WebSocket(voiceEndpoint);
@@ -288,11 +287,9 @@ function voiceConnect(voiceEndpoint, type) {
                 let timestr = getTime(current);
                 let requestTime = datastr+' '+timestr
 
-                previous = listMessages.get(requestId); 
-                if(previous) {
-                    console.log('length: (previous)'+previous.length+', new:'+query.length);
-                }                
-                if(previous || query.length > previous.length) {
+                let previous = listMessages.get(requestId); 
+                console.log('length: (previous)'+previous.length+', new:'+query.length);
+                if(query.length > previous.length) {
                     addSentMessage(requestId, timestr, query);
 
                     if(protocol == 'WEBSOCKET' && state=='completed') {
