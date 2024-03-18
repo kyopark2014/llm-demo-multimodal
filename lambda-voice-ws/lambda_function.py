@@ -28,46 +28,6 @@ def subscribe_redis(redis_client, channel):
                     
             #deliveryVoiceMessage(action_dict[userId], msg)
             deliveryVoiceMessage("general", msg)
-    """
-    pubsub = redis_client.pubsub()
-    pubsub.subscribe(channel)
-    print('successfully subscribed for channel: ', channel)    
-    
-    for message in pubsub.listen():
-        print('message: ', message)
-        
-        if message['data'] != 1:        
-            msg = message['data'].encode('utf-8').decode('unicode_escape')
-            print('voice msg: ', msg)    
-            deliveryVoiceMessage(action_dict[channel], msg)
-    """        
-    """
-    while True:
-        for message in pubsub.listen():
-            print('message: ', message)
-            if  message['data'] !=1:
-                msg = message['data']
-                print('voice msg: ', msg)        
-                deliveryVoiceMessage(action_dict['userId'], msg)              
-                msg = message['data'].encode('utf-8').decode('unicode_escape')
-                print('voice msg: ', msg)      
-    """
-                
-                
-    
-    #while True:
-    """
-        print("waiting message...")
-        
-        try: 
-            res = rs.get_message(timeout=5)
-            if res is not None:
-                print(f"res: {res}")
-        except Exception:
-            err_msg = traceback.format_exc()
-            print('error message: ', err_msg)       
-            raise Exception (f"Not able to connect redis")    
-    """
 
 def initiate_redis():
     global redis_client

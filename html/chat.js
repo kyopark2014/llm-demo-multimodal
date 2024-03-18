@@ -271,12 +271,16 @@ function voiceConnect(voiceEndpoint, type) {
             response = JSON.parse(event.data)
 
              if(response.status == 'redirected') {    
-                requestId = response.request_id;
-
                 feedback.style.display = 'none';      
                 console.log('response: ', response);
+                
+                let msg = JSON.parse(response.msg)
+                requestId = msg.requestId;
+                query = msg.query;
+                state = msg.state;
+
                 console.log('requestId: ', requestId);
-                console.log('message: ', response.msg);
+                console.log('query: ', query);
 
                 let current = new Date();
                 let datastr = getDate(current);
@@ -285,7 +289,7 @@ function voiceConnect(voiceEndpoint, type) {
 
                 addSentMessage(requestId, timestr, response.msg);
 
-                if(protocol == 'WEBSOCKET') {
+                if(protocol == 'WEBSOCKET' && state=='completed') {
                     sendMessage({
                         "user_id": userId,
                         "request_id": requestId,

@@ -21,14 +21,24 @@ except Exception:
     raise Exception ("Not able to request to LLM")
     
 def lambda_handler(event, context):
-    userId = event['userId']     
-    query = event['query']
-    print(f'userId: {userId}, query: {query}')
+    print('event: ', json.dumps(event))
     
-    channel = f"{userId}"    
+    userId = event['userId']    
+    requestId = event['requestId']    
+    query = event['query']
+    state = event['state']    
+        
+    msg = {
+        "userId": userId,
+        "requestId": requestId,
+        "query": query,
+        "state": state
+    }
+    
+    channel = f"{userId}"   
     try: 
-        rd.publish(channel=channel, message=json.dumps(query))
-        print('successfully published: ', json.dumps(query))
+        rd.publish(channel=channel, message=json.dumps(msg))
+        print('successfully published: ', json.dumps(msg))
     
     except Exception:
         err_msg = traceback.format_exc()
