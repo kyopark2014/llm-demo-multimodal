@@ -21,15 +21,6 @@ if(protocol == 'WEBSOCKET') {
     webSocket = connect(endpoint, 'initial');
 }*/
 
-console.log('feedback...');
-const feedback = document.getElementById('feedback');
-feedback.style.display = 'none'; 
-
-let voiceWebSocket
-let isVoiceConnected;
-if(protocol == 'WEBSOCKET') {
-    voiceWebSocket = voiceConnect(voiceEndpoint, 'initial');
-}
 
 // earn voice endpoint 
 let voiceEndpoint = localStorage.getItem('voice_wss_url');
@@ -39,7 +30,15 @@ if(voiceEndpoint=="") {
 
 console.log('voiceEndpoint: ', voiceEndpoint);
 
+let voiceWebSocket
+let isVoiceConnected;
+if(protocol == 'WEBSOCKET') {
+    voiceWebSocket = voiceConnect(voiceEndpoint, 'initial');
+}
 
+console.log('feedback...');
+const feedback = document.getElementById('feedback');
+feedback.style.display = 'none'; 
 
 HashMap = function() {
     this.map = new Array();
