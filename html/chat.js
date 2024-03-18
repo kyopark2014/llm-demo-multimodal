@@ -203,15 +203,7 @@ function connect(endpoint, type) {
             }
             else if(response.status == 'proceeding') {
                 feedback.style.display = 'none';
-
-                previous = listMessages.get(requestId); 
-                if(response.msg.length > previous.length) {
-                    addReceivedMessage(response.request_id, response.msg);
-                    listMessages.put(response.request_id, response.msg);  
-                }
-                else {
-                    console.log('wong message size: ', response.msg.length);
-                }
+                addReceivedMessage(response.request_id, response.msg);                
             }                
             else if(response.status == 'debug') {
                 feedback.style.display = 'none';
@@ -295,17 +287,26 @@ function voiceConnect(voiceEndpoint, type) {
                 let timestr = getTime(current);
                 let requestTime = datastr+' '+timestr
 
-                addSentMessage(requestId, timestr, query);
+                previous = listMessages.get(requestId); 
+                console.log('length: (previous)'+previous.length+', new:'+esponse.msg.length);
+                if(response.msg.length > previous.length) {
+                    addSentMessage(requestId, timestr, query);
 
-                if(protocol == 'WEBSOCKET' && state=='completed') {
-                    sendMessage({
-                        "user_id": userId,
-                        "request_id": requestId,
-                        "request_time": requestTime,        
-                        "type": "text",
-                        "body": query,
-                        "convType": conversationType
-                    })
+                    if(protocol == 'WEBSOCKET' && state=='completed') {
+                        sendMessage({
+                            "user_id": userId,
+                            "request_id": requestId,
+                            "request_time": requestTime,        
+                            "type": "text",
+                            "body": query,
+                            "convType": conversationType
+                        })
+                    }
+                    
+                    listMessages.put(response.request_id, response.msg);  
+                }
+                else {
+                    console.log('wrong message size: ', response.msg.length);
                 }
             }      
             else if(response.status == 'error') {
