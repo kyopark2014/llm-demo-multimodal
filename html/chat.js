@@ -240,6 +240,7 @@ function connect(endpoint, type) {
     return ws;
 }
 
+previous = "";
 function voiceConnect(voiceEndpoint, type) {
     const ws = new WebSocket(voiceEndpoint);
 
@@ -288,7 +289,7 @@ function voiceConnect(voiceEndpoint, type) {
                 let requestTime = datastr+' '+timestr
 
                 previous = listMessages.get(requestId); 
-                console.log('length: (previous)'+previous.length+', new:'+esponse.msg.length);
+                console.log('length: (previous)'+previous.length+', new:'+response.msg.length);
                 if(response.msg.length > previous.length) {
                     addSentMessage(requestId, timestr, query);
 
