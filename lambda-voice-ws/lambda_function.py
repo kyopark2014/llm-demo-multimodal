@@ -146,7 +146,7 @@ def lambda_handler(event, context):
             print('connected!')
             
             # for testing message
-            deliveryVoiceMessage("general", "hello world!")
+            #deliveryVoiceMessage("general", "hello world!")
             
             print('start subscribing redis.')
             channel = 'kyopark'    
