@@ -50,9 +50,9 @@ print('voice_connection_url: ', voice_connection_url)
     
 def sendMessage(body):
     try:
-        print('post_to_connection')
-        print('connectionId: ', connectionId)
-        print('body: ', json.dumps(body))
+        #print('post_to_connection')
+        #print('connectionId: ', connectionId)
+        #print('body: ', json.dumps(body))
         
         client.post_to_connection(
             ConnectionId=connectionId, 

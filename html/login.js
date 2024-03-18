@@ -1,14 +1,18 @@
+// Chat UI
+const myForm = document.querySelector('#my-form');
+const userInput = document.querySelector('#userId');
+
+const convtypeInput = document.querySelector('#convtype');
+
 // Common
 let userId = localStorage.getItem('userId'); // set userID if exists 
 if(userId=="") {
     userId = uuidv4();
 }
+else {
+    userInput.value = userId
+}
 console.log('userId: ', userId);
-
-// Chat UI
-const myForm = document.querySelector('#my-form');
-const userInput = document.querySelector('#userId');
-const convtypeInput = document.querySelector('#convtype');
 
 myForm.addEventListener('submit', onSubmit);
 
@@ -187,6 +191,13 @@ function makeGreetingMessage() {
         xhr.send(blob);
     }, {type: 'image/png'});
 }
+
+function uuidv4() {
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    );
+}
+
 
 function getEmotion() {
     // const uri = cloudfrntUrl + "emotion";
