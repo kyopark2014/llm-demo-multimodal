@@ -289,8 +289,10 @@ function voiceConnect(voiceEndpoint, type) {
                 let requestTime = datastr+' '+timestr
 
                 previous = listMessages.get(requestId); 
-                console.log('length: (previous)'+previous.length+', new:'+query.length);
-                if(query.length > previous.length) {
+                if(previous) {
+                    console.log('length: (previous)'+previous.length+', new:'+query.length);
+                }                
+                if(previous=="" || query.length > previous.length) {
                     addSentMessage(requestId, timestr, query);
 
                     if(protocol == 'WEBSOCKET' && state=='completed') {
