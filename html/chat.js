@@ -287,7 +287,7 @@ function voiceConnect(voiceEndpoint, type) {
                 let timestr = getTime(current);
                 let requestTime = datastr+' '+timestr
 
-                addSentMessage(requestId, timestr, response.msg);
+                addSentMessage(requestId, timestr, query);
 
                 if(protocol == 'WEBSOCKET' && state=='completed') {
                     sendMessage({
@@ -295,7 +295,7 @@ function voiceConnect(voiceEndpoint, type) {
                         "request_id": requestId,
                         "request_time": requestTime,        
                         "type": "text",
-                        "body": response.msg,
+                        "body": query,
                         "convType": conversationType
                     })
                 }
