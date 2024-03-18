@@ -14,7 +14,7 @@ redisAddress = os.environ.get('redisAddress')
 redisPort = os.environ.get('redisPort')
 
 try: 
-    rd = redis.StrictRedis(host=redisAddress, port=redisPort, db=0)        
+    redis_client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)    
 except Exception:
     err_msg = traceback.format_exc()
     print('error message: ', err_msg)                    
@@ -42,7 +42,7 @@ def lambda_handler(event, context):
     
     channel = f"{userId}"   
     try: 
-        rd.publish(channel=channel, message=json.dumps(msg))
+        redis_client.publish(channel=channel, message=json.dumps(msg))
         print('successfully published: ', json.dumps(msg))
     
     except Exception:
