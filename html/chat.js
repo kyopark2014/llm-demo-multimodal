@@ -289,14 +289,13 @@ function voiceConnect(voiceEndpoint, type) {
 
                 let previous = listMessages.get(requestId); 
                 if (previous == undefined) previous = "";
-                console.log('previosu: ', previous);
-                
-                console.log('length: (previous)'+previous.length+', new:'+query.length);
-                if(query.length > previous.length) {
+                console.log('previosu: ', previous);                
+                console.log('previous'+previous.length+', new:'+query.length);
+                if(query !=  previous) {
                     addSentMessage(requestId, timestr, query);
 
                     if(protocol == 'WEBSOCKET' && state=='completed') {
-                        console.log('query: ', query);
+                        console.log('--> request: ', query);
                         sendMessage({
                             "user_id": userId,
                             "request_id": requestId,
@@ -310,7 +309,7 @@ function voiceConnect(voiceEndpoint, type) {
                     listMessages.put(requestId, query);  
                 }
                 else {
-                    console.log('wrong message size: ', query.length);
+                    console.log('wrong message: ', query);
                 }
             }      
             else if(response.status == 'error') {
