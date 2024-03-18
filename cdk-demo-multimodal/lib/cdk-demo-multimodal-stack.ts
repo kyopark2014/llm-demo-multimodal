@@ -539,8 +539,8 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
         path: 'https://'+distribution.domainName+'/',   
         callLogTableName: callLogTableName,
         connection_url: connection_url,
-        //profile_of_LLMs:JSON.stringify(claude3_haiku),
-        profile_of_LLMs:JSON.stringify(claude3_sonnet),
+        profile_of_LLMs:JSON.stringify(claude3_haiku),
+        // profile_of_LLMs:JSON.stringify(claude3_sonnet),
       }
     });     
     lambdaChatWebsocket.grantInvoke(new iam.ServicePrincipal('apigateway.amazonaws.com'));  

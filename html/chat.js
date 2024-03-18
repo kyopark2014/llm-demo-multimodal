@@ -128,7 +128,7 @@ function voicePong() {
     clearTimeout(voiceTm);
 }
 
-
+let listMessages = new HashMap(); 
 function connect(endpoint, type) {
     const ws = new WebSocket(endpoint);
 
@@ -203,7 +203,15 @@ function connect(endpoint, type) {
             }
             else if(response.status == 'proceeding') {
                 feedback.style.display = 'none';
-                addReceivedMessage(response.request_id, response.msg);  
+
+                previous = listMessages.get(requestId); 
+                if(response.msg.length > previous.length) {
+                    addReceivedMessage(response.request_id, response.msg);
+                    listMessages.put(response.request_id, response.msg);  
+                }
+                else {
+                    console.log('wong message size: ', response.msg.length);
+                }
             }                
             else if(response.status == 'debug') {
                 feedback.style.display = 'none';
@@ -583,7 +591,7 @@ function addReceivedMessage(requestId, msg) {
         index = indexList.get(requestId+':receive');
         console.log("reused index="+index+', id='+requestId+':receive');        
     }
-    console.log("index:", index);   
+    // console.log("index:", index);   
 
     msg = msg.replaceAll("\n", "<br/>");
 
