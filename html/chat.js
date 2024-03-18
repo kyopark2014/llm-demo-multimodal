@@ -253,7 +253,7 @@ function voiceConnect(voiceEndpoint, type) {
             "user_id": userId,
             "type": "initiate"
         }
-        voiceWebSocket.send(json.stringify(requestObj));
+        voiceWebSocket.send(JSON.stringify(requestObj));
     
         if(type == 'initial')
             setInterval(voicePing, 40000);  // ping interval: 40 seconds
