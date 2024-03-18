@@ -288,6 +288,7 @@ function voiceConnect(voiceEndpoint, type) {
                 let requestTime = datastr+' '+timestr
 
                 let previous = listMessages.get(requestId); 
+                console.log('previosu: ', previous)
                 //console.log('length: (previous)'+previous.length+', new:'+query.length);
                 if(query.length > previous.length) {
                     addSentMessage(requestId, timestr, query);
