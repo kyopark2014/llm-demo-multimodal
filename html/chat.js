@@ -289,8 +289,8 @@ function voiceConnect(voiceEndpoint, type) {
                 let requestTime = datastr+' '+timestr
 
                 previous = listMessages.get(requestId); 
-                console.log('length: (previous)'+previous.length+', new:'+response.msg.length);
-                if(response.msg.length > previous.length) {
+                console.log('length: (previous)'+previous.length+', new:'+query.length);
+                if(query.length > previous.length) {
                     addSentMessage(requestId, timestr, query);
 
                     if(protocol == 'WEBSOCKET' && state=='completed') {
@@ -304,10 +304,10 @@ function voiceConnect(voiceEndpoint, type) {
                         })
                     }
                     
-                    listMessages.put(response.request_id, response.msg);  
+                    listMessages.put(requestId, query);  
                 }
                 else {
-                    console.log('wrong message size: ', response.msg.length);
+                    console.log('wrong message size: ', query.length);
                 }
             }      
             else if(response.status == 'error') {
