@@ -19,12 +19,14 @@ except Exception:
     err_msg = traceback.format_exc()
     print('error message: ', err_msg)                    
     raise Exception ("Not able to request to LLM")
-    
+
+requestId = str(uuid.uuid4())     
 def lambda_handler(event, context):
     print('event: ', json.dumps(event))
     
-    userId = event['userId']    
-    requestId = event['requestId']    
+    global requestId
+    
+    userId = event['userId']        
     query = event['query']
     state = event['state']    
         
@@ -34,6 +36,9 @@ def lambda_handler(event, context):
         "query": query,
         "state": state
     }
+    
+    if state == 'completed':
+        requestId = str(uuid.uuid4())  
     
     channel = f"{userId}"   
     try: 
