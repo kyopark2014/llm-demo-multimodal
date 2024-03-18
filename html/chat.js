@@ -8,6 +8,22 @@ if(userId=="") {
 }
 console.log('userId: ', userId);
 
+// earn endpoint 
+let endpoint = localStorage.getItem('wss_url');
+if(endpoint=="") {
+    console.log('provisioning is required!');
+}
+console.log('endpoint: ', endpoint);
+
+let webSocket
+let isConnected;
+
+/*
+if(protocol == 'WEBSOCKET') {
+    webSocket = connect(endpoint, 'initial');
+} */
+
+
 // earn voice endpoint 
 let voiceEndpoint = localStorage.getItem('voice_wss_url');
 if(voiceEndpoint=="") {
@@ -21,18 +37,6 @@ if(protocol == 'WEBSOCKET') {
     voiceWebSocket = voiceConnect(voiceEndpoint, 'initial');
 }
 
-// earn endpoint 
-let endpoint = localStorage.getItem('wss_url');
-if(endpoint=="") {
-    console.log('provisioning is required!');
-}
-console.log('endpoint: ', endpoint);
-
-let webSocket
-let isConnected;
-if(protocol == 'WEBSOCKET') {
-    webSocket = connect(endpoint, 'initial');
-}
 
 console.log('feedback...');
 const feedback = document.getElementById('feedback');
