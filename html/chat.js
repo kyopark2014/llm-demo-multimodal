@@ -249,7 +249,11 @@ function voiceConnect(voiceEndpoint, type) {
         isVoiceConnected = true;
 
         // request initiation of redis
-        voiceWebSocket.send('__redis__');
+        let requestObj = {
+            "user_id": userId,
+            "type": "initiate"
+        }
+        voiceWebSocket.send(requestObj);
     
         if(type == 'initial')
             setInterval(voicePing, 40000);  // ping interval: 40 seconds

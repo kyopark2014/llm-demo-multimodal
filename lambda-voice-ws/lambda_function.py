@@ -152,23 +152,23 @@ def lambda_handler(event, context):
             print('disconnected!')
         else:
             body = event.get("body", "")
-            #print("data[0:8]: ", body[0:8])
-            if body[0:8] == "__ping__":
-                # print("keep alive!")       
+            if body[0:8] == "__ping__":  # keep alive
                 sendMessage("__pong__")
-            elif body[0:9] == "__redis__":
-                # for testing message
-                #deliveryVoiceMessage("general", "hello world!")
-            
-                print('start subscribing redis.')
-                channel = 'kyopark'    
-                subscribe_redis(redis_client, channel)
-            else:  # not used
+            else:  
                 print('connectionId: ', connectionId)
                 print('routeKey: ', routeKey)
 
                 jsonBody = json.loads(body)
                 print('request body: ', json.dumps(jsonBody))
+                userId  = jsonBody['userId']
+                
+                # for testing message
+                #deliveryVoiceMessage("general", "hello world!")
+            
+                print('start subscribing redis.')
+                channel = userId 
+                subscribe_redis(redis_client, channel)
+                
     return {
         "isBase64Encoded": False,
         'statusCode': 200,
