@@ -27,7 +27,6 @@ let voiceEndpoint = localStorage.getItem('voice_wss_url');
 if(voiceEndpoint=="") {
     console.log('voice provisioning is required!');
 }
-
 console.log('voiceEndpoint: ', voiceEndpoint);
 
 let voiceWebSocket
