@@ -13,7 +13,7 @@ let endpoint = localStorage.getItem('wss_url');
 if(endpoint=="") {
     console.log('provisioning is required!');
 }
-console.log('endpoint: ', endpoint);
+console.log('endpoint: ',voiceEndpoint );
 
 
 // earn voice endpoint 
@@ -21,7 +21,7 @@ let voiceEndpoint = localStorage.getItem('voice_wss_url');
 if(voiceEndpoint=="") {
     console.log('voice provisioning is required!');
 }
-console.log('voiceEndpoint: ', voiceEndpoint);
+console.log('voiceEndpoint: ', endpoint);
 
 
 console.log('feedback...');
