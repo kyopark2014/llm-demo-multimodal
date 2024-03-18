@@ -160,7 +160,7 @@ def lambda_handler(event, context):
 
                 jsonBody = json.loads(body)
                 print('request body: ', json.dumps(jsonBody))
-                userId  = jsonBody['userId']
+                userId  = jsonBody['user_id']
                 
                 # for testing message
                 #deliveryVoiceMessage("general", "hello world!")
