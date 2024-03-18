@@ -76,28 +76,15 @@ def deliveryVoiceMessage(action, msg):
     
     sendMessage(result)      
 
-def sendResultMessage(action, msg):    
-    result = {
-        'request_id': requestId,
-        'action': action,
-        'msg': msg,
-        'status': 'completed'
-    }
-    #print('debug: ', json.dumps(debugMsg))
-    sendMessage(result)
-        
-def sendErrorMessage(msg):
-    errorMsg = {
-        'request_id': requestId,
-        'msg': msg,
-        'status': 'error'
-    }
-    print('error: ', json.dumps(errorMsg))
-    sendMessage(errorMsg)    
-        
+isConnected = False        
+def start_redis_pubsub(userId):
+    print('start subscribing redis.')
+    channel = userId 
+    subscribe_redis(redis_client, channel)
+                
 def lambda_handler(event, context):
-    print('event: ', event)    
-    global connectionId, requestId
+    #print('event: ', event)    
+    global connectionId, isConnected
     
     msg = ""
     if event['requestContext']: 
@@ -113,6 +100,9 @@ def lambda_handler(event, context):
         else:
             body = event.get("body", "")
             if body[0:8] == "__ping__":  # keep alive
+                if isConnected == False:
+                    start_redis_pubsub(userId)                
+                    isConnected = True
                 sendMessage("__pong__")
             else:  
                 print('connectionId: ', connectionId)
@@ -124,10 +114,8 @@ def lambda_handler(event, context):
                 
                 # for testing message
                 #deliveryVoiceMessage("general", "hello world!")
-            
-                print('start subscribing redis.')
-                channel = userId 
-                subscribe_redis(redis_client, channel)
+                start_redis_pubsub(userId)                
+                isConnected = True
                 
     return {
         "isBase64Encoded": False,
