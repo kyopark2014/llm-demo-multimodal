@@ -591,6 +591,7 @@ function addReceivedMessage(requestId, msg) {
     msg = msg.replaceAll("\n", "<br/>");
 
     var length = msg.length;
+    console.log('msg: ', msg)
     console.log("length: ", length);
 
     if(length < 10) {
