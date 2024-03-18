@@ -15,12 +15,11 @@ if(endpoint=="") {
 }
 console.log('endpoint: ', endpoint);
 
-/*let webSocket
+let webSocket
 let isConnected;
 if(protocol == 'WEBSOCKET') {
     webSocket = connect(endpoint, 'initial');
-}*/
-
+}
 
 // earn voice endpoint 
 let voiceEndpoint = localStorage.getItem('voice_wss_url');
