@@ -183,5 +183,9 @@ def lambda_handler(event, context):
                     raise Exception ("Not able to send a message")
 
     return {
-        'statusCode': 200
-    }
+        "isBase64Encoded": False,
+        'statusCode': 200,
+        'body': json.dumps({            
+            "msg": 'success'
+        })
+    }    
