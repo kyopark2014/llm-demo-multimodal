@@ -591,7 +591,7 @@ function addReceivedMessage(requestId, msg) {
     msg = msg.replaceAll("\n", "<br/>");
 
     var length = msg.length;
-    // console.log("length: ", length);
+    console.log("length: ", length);
 
     if(length < 10) {
         msglist[index].innerHTML = `<div class="chat-receiver20 chat-receiver--left"><h1>${sender}</h1>${msg}&nbsp;</div>`;  
