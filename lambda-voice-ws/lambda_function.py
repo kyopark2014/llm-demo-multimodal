@@ -150,40 +150,25 @@ def lambda_handler(event, context):
             print('connected!')
         elif routeKey == '$disconnect':
             print('disconnected!')
-            
-            # for testing message
-            #deliveryVoiceMessage("general", "hello world!")
-            
-            #print('start subscribing redis.')
-            #channel = 'kyopark'    
-            #subscribe_redis(redis_client, channel)
         else:
             body = event.get("body", "")
             #print("data[0:8]: ", body[0:8])
             if body[0:8] == "__ping__":
-                # print("keep alive!")                
+                # print("keep alive!")       
                 sendMessage("__pong__")
-            else:
+            elif body[0:9] == "__redis__":
+                # for testing message
+                #deliveryVoiceMessage("general", "hello world!")
+            
+                print('start subscribing redis.')
+                channel = 'kyopark'    
+                subscribe_redis(redis_client, channel)
+            else:  # not used
                 print('connectionId: ', connectionId)
                 print('routeKey: ', routeKey)
-        
+
                 jsonBody = json.loads(body)
                 print('request body: ', json.dumps(jsonBody))
-
-                requestId  = jsonBody['request_id']
-                try:                    
-                    userId  = jsonBody['user_id']
-                    print('userId: ', userId)
-                                        
-                    
-                    
-                except Exception:
-                    err_msg = traceback.format_exc()
-                    print('err_msg: ', err_msg)
-
-                    sendErrorMessage(err_msg)    
-                    raise Exception ("Not able to send a message")
-
     return {
         "isBase64Encoded": False,
         'statusCode': 200,

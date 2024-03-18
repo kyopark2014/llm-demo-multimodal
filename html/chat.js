@@ -18,11 +18,9 @@ console.log('endpoint: ', endpoint);
 let webSocket
 let isConnected;
 
-/*
 if(protocol == 'WEBSOCKET') {
     webSocket = connect(endpoint, 'initial');
-} */
-
+} 
 
 // earn voice endpoint 
 let voiceEndpoint = localStorage.getItem('voice_wss_url');
@@ -36,7 +34,6 @@ let isVoiceConnected;
 if(protocol == 'WEBSOCKET') {
     voiceWebSocket = voiceConnect(voiceEndpoint, 'initial');
 }
-
 
 console.log('feedback...');
 const feedback = document.getElementById('feedback');
@@ -251,6 +248,9 @@ function voiceConnect(voiceEndpoint, type) {
         console.log('voice connected...');
         isVoiceConnected = true;
 
+        // request initiation of redis
+        voiceWebSocket.send('__redis__');
+    
         if(type == 'initial')
             setInterval(voicePing, 40000);  // ping interval: 40 seconds
     };
