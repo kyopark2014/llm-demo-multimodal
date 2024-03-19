@@ -211,7 +211,7 @@ function connect(endpoint, type) {
             else if(response.status == 'proceeding') {
                 feedback.style.display = 'none';
 
-                print('response.msg: ', response.msg)
+                console.log('response.msg: ', response.msg)
                 received_message += response.msg;
                 addReceivedMessage(response.request_id, received_message);                
             }                
