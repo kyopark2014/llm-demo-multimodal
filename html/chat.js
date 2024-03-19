@@ -183,7 +183,7 @@ function connect(endpoint, type) {
                 // play audio file
                 let page
                 const audio = document.querySelector("audio");
-                audio.src = `<audio src="https://d3c6h2zak9z18h.cloudfront.net/speech/kyopark.mp3"></audio>`
+                audio.src = `https://d3c6h2zak9z18h.cloudfront.net/speech/kyopark.mp3`
                 audio.play();                  
 
                 if (action == 'general' && response.action != 'general') { // do action
