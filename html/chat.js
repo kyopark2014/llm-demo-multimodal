@@ -131,7 +131,7 @@ function voicePong() {
 }
 
 // chat session 
-received_message = "";
+sentance = "";
 function connect(endpoint, type) {
     const ws = new WebSocket(endpoint);
 
@@ -165,6 +165,7 @@ function connect(endpoint, type) {
     };
 
     // message 
+    let word = "";
     ws.onmessage = function (event) {     
         isConnected = true;   
         if (event.data.substr(1,8) == "__pong__") {
@@ -206,14 +207,23 @@ function connect(endpoint, type) {
             else if(response.status == 'istyping') {
                 feedback.style.display = 'inline';
                 // feedback.innerHTML = '<i>typing a message...</i>'; 
-                received_message = "";
+                sentance = "";
+                word = "";
             }
             else if(response.status == 'proceeding') {
                 feedback.style.display = 'none';
 
+                if(response.msg == ' ') {
+                    word = "";
+                }
+                else {
+                    word = word + response.msg;
+                    playAudio(response.msg);   
+                }
+
                 console.log('response.msg: ', response.msg);
-                received_message += response.msg;
-                addReceivedMessage(response.request_id, received_message);                
+                sentance += response.msg;
+                addReceivedMessage(response.request_id, sentance);                
             }                
             else if(response.status == 'debug') {
                 feedback.style.display = 'none';
