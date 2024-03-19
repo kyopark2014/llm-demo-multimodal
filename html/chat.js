@@ -183,7 +183,7 @@ function connect(endpoint, type) {
                 addReceivedMessage(response.request_id, response.msg);  
                 
                 // play audio file
-                playAudio(response.msg)                                
+                // playAudio(response.msg)                                
 
                 if (action == 'general' && response.action != 'general') { // do action
                     action = response.action                      
@@ -215,7 +215,7 @@ function connect(endpoint, type) {
 
                 if(response.msg == ' ') {
                     if (word != "") {
-                        // playAudio(response.msg);   
+                        playAudio(response.msg);   
                         console.log(word);
                     }
                     word = "";
@@ -225,7 +225,7 @@ function connect(endpoint, type) {
                     
                 }
 
-                console.log('response.msg: ', response.msg);
+                // console.log('response.msg: ', response.msg);
                 sentance += response.msg;
                 addReceivedMessage(response.request_id, sentance);                
             }                
