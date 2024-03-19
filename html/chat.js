@@ -187,10 +187,6 @@ function connect(endpoint, type) {
                 audio.load();
                 audio.play();
 
-                console.log('afplay!')
-                os.system('afplay '+location)
-
-
                 if (action == 'general' && response.action != 'general') { // do action
                     action = response.action                      
                     console.log('start action: ', action)                    
