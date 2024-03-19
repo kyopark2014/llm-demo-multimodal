@@ -359,12 +359,12 @@ def readStreamMsg(stream):
     msg = ""
     if stream:
         for event in stream:
-            #print('event: ', event)
-            msg = msg + event
+            # print('event: ', event)
+            # msg = msg + event
 
             result = {
                 'request_id': requestId,
-                'msg': msg,
+                'msg': event,
                 'status': 'proceeding'
             }
             #print('result: ', json.dumps(result))

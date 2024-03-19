@@ -131,6 +131,7 @@ function voicePong() {
 }
 
 // chat session 
+received_message = "";
 function connect(endpoint, type) {
     const ws = new WebSocket(endpoint);
 
@@ -205,10 +206,14 @@ function connect(endpoint, type) {
             else if(response.status == 'istyping') {
                 feedback.style.display = 'inline';
                 // feedback.innerHTML = '<i>typing a message...</i>'; 
+                received_message = "";
             }
             else if(response.status == 'proceeding') {
                 feedback.style.display = 'none';
-                addReceivedMessage(response.request_id, response.msg);                
+
+                print('response.msg: ', response.msg)
+                received_message += response.msg;
+                addReceivedMessage(response.request_id, received_message);                
             }                
             else if(response.status == 'debug') {
                 feedback.style.display = 'none';
