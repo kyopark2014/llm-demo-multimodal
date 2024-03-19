@@ -4,7 +4,7 @@
 
 전체적인 Architecture는 아래를 참조하여 주시기 바랍니다. 
 
-![image](./pictures/main_architecture.png)
+![image](./pictures/main-architecture.png)
 
 
 
