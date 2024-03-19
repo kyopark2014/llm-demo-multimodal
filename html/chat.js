@@ -181,7 +181,7 @@ function connect(endpoint, type) {
                 addReceivedMessage(response.request_id, response.msg);  
                 
                 // play audio file
-                playAudio(text)
+                //playAudio(response.msg)
 
                 const audio = document.querySelector("audio");
                 audio.src = `./speech/kyopark.mp3`
