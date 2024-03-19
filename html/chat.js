@@ -8,8 +8,8 @@ if(userId=="") {
 }
 console.log('userId: ', userId);
 
-// earn endpoint 
-let endpoint = localStorage.getItem('wss_url');
+// chat session
+let endpoint = localStorage.getItem('wss_url');  
 if(endpoint=="") {
     console.log('provisioning is required!');
 }
@@ -17,12 +17,11 @@ console.log('endpoint: ', endpoint);
 
 let webSocket
 let isConnected;
-
 if(protocol == 'WEBSOCKET') {
     webSocket = connect(endpoint, 'initial');
 } 
 
-// earn voice endpoint 
+// voice session
 let voiceEndpoint = localStorage.getItem('voice_wss_url');
 if(voiceEndpoint=="") {
     console.log('voice provisioning is required!');
@@ -39,6 +38,7 @@ console.log('feedback...');
 const feedback = document.getElementById('feedback');
 feedback.style.display = 'none'; 
 
+// Hashmap
 HashMap = function() {
     this.map = new Array();
 };
@@ -69,6 +69,7 @@ HashMap.prototype = {
     }
 };
 
+// messag method 
 let undelivered = new HashMap();
 let retry_count = 0;
 function sendMessage(message) {
@@ -96,6 +97,7 @@ function sendMessage(message) {
     }     
 }
 
+// keep alive
 let tm;
 function ping() {
     console.log('->ping');
@@ -128,6 +130,7 @@ function voicePong() {
     clearTimeout(voiceTm);
 }
 
+// chat session 
 function connect(endpoint, type) {
     const ws = new WebSocket(endpoint);
 
@@ -239,7 +242,8 @@ function connect(endpoint, type) {
     return ws;
 }
 
-let listMessages = new HashMap(); 
+// voice session 
+let listMessages = new HashMap();   // duplication check caused by pubsub in the case of abnormal disconnection
 function voiceConnect(voiceEndpoint, type) {
     const ws = new WebSocket(voiceEndpoint);
 
@@ -349,11 +353,12 @@ function voiceConnect(voiceEndpoint, type) {
     return ws;
 }
 
+// action
 let tm_action;
 function do_action(action) {
     console.log('->action: ', action);
 
-    image_processing(action);
+    // image_processing(action);
     clear_timer();
 
     if(action != 'general') {
@@ -489,6 +494,7 @@ function onSend(e) {
     chatPanel.scrollTop = chatPanel.scrollHeight;  // scroll needs to move bottom
 }
 
+// UUID 
 function uuidv4() {
     return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
       (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
