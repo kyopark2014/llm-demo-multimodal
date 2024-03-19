@@ -629,12 +629,36 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(30),
       environment: {
         s3_bucket: s3Bucket.bucketName,
-        path: 'https://'+distribution.domainName+'/',   
+       // path: 'https://'+distribution.domainName+'/',   
       }
     });
     s3Bucket.grantReadWrite(lambdaPolly); // permission for s3
 
-    
+    const polySpeech = api.root.addResource("speech");
+    polySpeech.addMethod('POST', new apiGateway.LambdaIntegration(lambdaPolly, {
+      passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
+      credentialsRole: role,
+      integrationResponses: [{
+        statusCode: '200',
+      }], 
+      proxy:false, 
+    }), {
+      methodResponses: [  
+        {
+          statusCode: '200',
+          responseModels: {
+            'application/json': apiGateway.Model.EMPTY_MODEL,
+          }, 
+        }
+      ]
+    }); 
+
+    // cloudfront setting for api gateway    
+    distribution.addBehavior("/speech", new origins.RestApiOrigin(api), {
+      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
+      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
+      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    });
 
     // Lambda - greeting
     const lambdaGreeting = new lambda.DockerImageFunction(this, `lambda-greeting-for-${projectName}`, {
@@ -839,7 +863,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     }); 
 
     // deploy components
-    new componentDeployment(scope, `deployment-for-${projectName}`, websocketapi.attrApiId, api, lambdaPolly, role, distribution)    
+    new componentDeployment(scope, `deployment-for-${projectName}`, websocketapi.attrApiId)    
 
     ///////////////////////////////////////////
     // Voice Stream
@@ -1092,11 +1116,12 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
 
     // deploy components
     new voiceComponentDeployment(scope, `voice-deployment-for-${projectName}`, voiceWebsocketapi.attrApiId)   
+  
   }
 }
 
 export class componentDeployment extends cdk.Stack {
-  constructor(scope: Construct, id: string, appId: string, api: any, lambdaPolly: any, role: any, distribution: any, props?: cdk.StackProps) {    
+  constructor(scope: Construct, id: string, appId: string, props?: cdk.StackProps) {    
     super(scope, id, props);
 
     new apigatewayv2.CfnDeployment(this, `api-deployment-for-${projectName}`, {
@@ -1104,33 +1129,6 @@ export class componentDeployment extends cdk.Stack {
       description: "deploy api gateway using websocker",  // $default
       stageName: stage
     });   
-
-    // POST method - speech
-    const polySpeech = api.root.addResource("speech");
-    polySpeech.addMethod('POST', new apiGateway.LambdaIntegration(lambdaPolly, {
-      passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
-      credentialsRole: role,
-      integrationResponses: [{
-        statusCode: '200',
-      }], 
-      proxy:false, 
-    }), {
-      methodResponses: [  
-        {
-          statusCode: '200',
-          responseModels: {
-            'application/json': apiGateway.Model.EMPTY_MODEL,
-          }, 
-        }
-      ]
-    }); 
-
-    // cloudfront setting for api gateway    
-    distribution.addBehavior("/speech", new origins.RestApiOrigin(api), {
-      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
-      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
-      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-    });
   }
 } 
 
@@ -1142,6 +1140,6 @@ export class voiceComponentDeployment extends cdk.Stack {
       apiId: appId,
       description: "deploy voice api gateway using websocker",  // $default
       stageName: stage
-    });       
+    });   
   }
 } 
