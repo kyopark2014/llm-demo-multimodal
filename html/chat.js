@@ -683,7 +683,7 @@ function playAudio(text) {
             
             const audio = document.querySelector("audio");
             // audio.src = `./speech/kyopark.mp3`
-            audio.src = './speech/'+userid+'.mp3'
+            audio.src = './speech/'+userId+'.mp3'
             audio.load();
             audio.play();  
         }
