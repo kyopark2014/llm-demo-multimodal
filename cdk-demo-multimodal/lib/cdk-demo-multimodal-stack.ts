@@ -634,12 +634,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     });
     s3Bucket.grantReadWrite(lambdaPolly); // permission for s3
 
-    // cloudfront setting for api gateway    
-    distribution.addBehavior("/speech", new origins.RestApiOrigin(api), {
-      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
-      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
-      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-    });
+    
 
     // Lambda - greeting
     const lambdaGreeting = new lambda.DockerImageFunction(this, `lambda-greeting-for-${projectName}`, {
@@ -844,7 +839,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     }); 
 
     // deploy components
-    new componentDeployment(scope, `deployment-for-${projectName}`, websocketapi.attrApiId, api, lambdaPolly, role)    
+    new componentDeployment(scope, `deployment-for-${projectName}`, websocketapi.attrApiId, api, lambdaPolly, role, distribution)    
 
     ///////////////////////////////////////////
     // Voice Stream
@@ -1101,7 +1096,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
 }
 
 export class componentDeployment extends cdk.Stack {
-  constructor(scope: Construct, id: string, appId: string, api: any, lambdaPolly: any, role: any, props?: cdk.StackProps) {    
+  constructor(scope: Construct, id: string, appId: string, api: any, lambdaPolly: any, role: any, distribution: any, props?: cdk.StackProps) {    
     super(scope, id, props);
 
     new apigatewayv2.CfnDeployment(this, `api-deployment-for-${projectName}`, {
@@ -1129,6 +1124,13 @@ export class componentDeployment extends cdk.Stack {
         }
       ]
     }); 
+
+    // cloudfront setting for api gateway    
+    distribution.addBehavior("/speech", new origins.RestApiOrigin(api), {
+      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
+      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
+      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    });
   }
 } 
 
