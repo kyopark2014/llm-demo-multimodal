@@ -179,6 +179,9 @@ function connect(endpoint, type) {
                 console.log('current: '+action+'next: '+response.msg);
                    
                 addReceivedMessage(response.request_id, response.msg);  
+                
+                // play audio file
+                playAudio(response.msg);
 
                 if (action == 'general' && response.action != 'general') { // do action
                     action = response.action                      
@@ -612,10 +615,11 @@ function playAudio(text) {
     xhr.onreadystatechange = () => {
         if (xhr.readyState === 4 && xhr.status === 200) {
             response = JSON.parse(xhr.responseText);
-            console.log("response: " + JSON.stringify(response));
+            console.log("response: ", response);
             
-            const body = JSON.parse(response.body);
-            console.log('body: ', body);
+            // console.log("response: " + JSON.stringify(response));            
+            // const body = JSON.parse(response.body);
+            // console.log('body: ', body);
         }
     };
     
@@ -679,9 +683,6 @@ function addReceivedMessage(requestId, msg) {
         msglist[index].innerHTML = `<div class="chat-receiver80 chat-receiver--left"><h1>${sender}</h1>${msg}&nbsp;</div>`;  
     }
 
-    // play audio file
-    playAudio(msg)
-     
     chatPanel.scrollTop = chatPanel.scrollHeight;  // scroll needs to move bottom
     index++;
 }
