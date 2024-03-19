@@ -3,13 +3,20 @@
 import asyncio
 import sounddevice
 import requests
-import uuid
+import configparser
 from amazon_transcribe.client import TranscribeStreamingClient
 from amazon_transcribe.handlers import TranscriptResultStreamHandler
 from amazon_transcribe.model import TranscriptEvent
 
-url = 'https://d3c6h2zak9z18h.cloudfront.net/redis'
-userId = 'kyopark'
+config = configparser.ConfigParser()    
+config.read('config.ini', encoding='utf-8') 
+
+config.sections()
+
+url = config['system']['url'] 
+print('url: ', url)
+userId = config['system']['userId']  
+print('userId: ', userId)
 
 class MyEventHandler(TranscriptResultStreamHandler):
     async def handle_transcript_event(self, transcript_event: TranscriptEvent):
