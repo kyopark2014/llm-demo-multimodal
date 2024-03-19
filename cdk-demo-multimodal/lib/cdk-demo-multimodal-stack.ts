@@ -844,7 +844,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     }); 
 
     // deploy components
-    new componentDeployment(scope, `deployment-for-${projectName}`, websocketapi.attrApiId)    
+    new componentDeployment(scope, `deployment-for-${projectName}`, api, lambdaPolly, role, websocketapi.attrApiId)    
 
     ///////////////////////////////////////////
     // Voice Stream
@@ -1096,29 +1096,17 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     });
 
     // deploy components
-    new voiceComponentDeployment(scope, `voice-deployment-for-${projectName}`, voiceWebsocketapi.attrApiId, api, lambdaPolly, role)   
+    new voiceComponentDeployment(scope, `voice-deployment-for-${projectName}`, voiceWebsocketapi.attrApiId)   
   }
 }
 
 export class componentDeployment extends cdk.Stack {
-  constructor(scope: Construct, id: string, appId: string, props?: cdk.StackProps) {    
+  constructor(scope: Construct, id: string, appId: string, api: any, lambdaPolly: any, role: any, props?: cdk.StackProps) {    
     super(scope, id, props);
 
     new apigatewayv2.CfnDeployment(this, `api-deployment-for-${projectName}`, {
       apiId: appId,
       description: "deploy api gateway using websocker",  // $default
-      stageName: stage
-    });   
-  }
-} 
-
-export class voiceComponentDeployment extends cdk.Stack {
-  constructor(scope: Construct, id: string, appId: string, api: any, lambdaPolly: any, role: any, props?: cdk.StackProps) {    
-    super(scope, id, props);
-
-    new apigatewayv2.CfnDeployment(this, `voice-api-deployment-for-${projectName}`, {
-      apiId: appId,
-      description: "deploy voice api gateway using websocker",  // $default
       stageName: stage
     });   
 
@@ -1141,5 +1129,17 @@ export class voiceComponentDeployment extends cdk.Stack {
         }
       ]
     }); 
+  }
+} 
+
+export class voiceComponentDeployment extends cdk.Stack {
+  constructor(scope: Construct, id: string, appId: string, props?: cdk.StackProps) {    
+    super(scope, id, props);
+
+    new apigatewayv2.CfnDeployment(this, `voice-api-deployment-for-${projectName}`, {
+      apiId: appId,
+      description: "deploy voice api gateway using websocker",  // $default
+      stageName: stage
+    });       
   }
 } 
