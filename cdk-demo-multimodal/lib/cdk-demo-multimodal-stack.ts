@@ -599,7 +599,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
         new iam.ServicePrincipal("lambda.amazonaws.com"),
       )
     });
-    roleLambdaPolly.addManagedPolicy({
+ /*   roleLambdaPolly.addManagedPolicy({
       managedPolicyArn: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
     });
     roleLambdaPolly.attachInlinePolicy( 
@@ -616,7 +616,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       new iam.Policy(this, 'polly-policy', {
         statements: [PollyPolicy],
       }),
-    );
+    ); */
 
     // lambda - polly
     const lambdaPolly = new lambda.Function(this, `lambda-polly-for-${projectName}`, {
