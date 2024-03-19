@@ -593,13 +593,13 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     });
 
     // Poly Role
-    const roleLambdaPolly = new iam.Role(this, `role-lambda-polly-for-${projectName}`, {
+  /*  const roleLambdaPolly = new iam.Role(this, `role-lambda-polly-for-${projectName}`, {
       roleName: `role-lambda-polly-for-${projectName}-${region}`,
       assumedBy: new iam.CompositePrincipal(
         new iam.ServicePrincipal("lambda.amazonaws.com"),
       )
     });
- /*   roleLambdaPolly.addManagedPolicy({
+    roleLambdaPolly.addManagedPolicy({
       managedPolicyArn: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
     });
     roleLambdaPolly.attachInlinePolicy( 
@@ -624,7 +624,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       functionName: `lambda-polly-${projectName}`,
       handler: 'lambda_function.lambda_handler',
       runtime: lambda.Runtime.PYTHON_3_11,
-      role: roleLambdaPolly,
+      // role: roleLambdaPolly,
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda-polly')),
       timeout: cdk.Duration.seconds(30),
       environment: {
