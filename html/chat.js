@@ -281,6 +281,7 @@ function voiceConnect(voiceEndpoint, type) {
 
                 console.log('requestId: ', requestId);
                 console.log('query: ', query);
+                console.log('state: ', state);
 
                 let current = new Date();
                 let datastr = getDate(current);
@@ -290,7 +291,7 @@ function voiceConnect(voiceEndpoint, type) {
                 let previous = listMessages.get(requestId); 
                 if (previous == undefined) previous = "";
                 console.log('previosu: ', previous);                
-                console.log('previous'+previous.length+', new:'+query.length);
+                console.log('previous '+previous.length+', new: '+query.length);
                 if(query !=  previous) {
                     addSentMessage(requestId, timestr, query);
 
@@ -309,7 +310,7 @@ function voiceConnect(voiceEndpoint, type) {
                     listMessages.put(requestId, query);  
                 }
                 else {
-                    console.log('wrong message: ', query);
+                    console.log('ignore the dupplicated message: ', query);
                 }
             }      
             else if(response.status == 'error') {
