@@ -552,6 +552,115 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       description: 'The arn of lambda webchat.',
     }); 
 
+    // lambda - provisioning
+    const lambdaProvisioning = new lambda.Function(this, `lambda-provisioning-for-${projectName}`, {
+      description: 'lambda to earn provisioning info',
+      functionName: `lambda-provisioning-api-${projectName}`,
+      handler: 'lambda_function.lambda_handler',
+      runtime: lambda.Runtime.PYTHON_3_11,
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda-provisioning')),
+      timeout: cdk.Duration.seconds(30),
+      environment: {
+        wss_url: wss_url,
+      }
+    });
+
+    // POST method - provisioning
+    const provisioning_info = api.root.addResource("provisioning");
+    provisioning_info.addMethod('POST', new apiGateway.LambdaIntegration(lambdaProvisioning, {
+      passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
+      credentialsRole: role,
+      integrationResponses: [{
+        statusCode: '200',
+      }], 
+      proxy:false, 
+    }), {
+      methodResponses: [  
+        {
+          statusCode: '200',
+          responseModels: {
+            'application/json': apiGateway.Model.EMPTY_MODEL,
+          }, 
+        }
+      ]
+    }); 
+
+    // cloudfront setting for provisioning api
+    distribution.addBehavior("/provisioning", new origins.RestApiOrigin(api), {
+      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
+      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
+      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    });
+
+    // Poly Role
+    const roleLambdaPolly = new iam.Role(this, `role-lambda-polly-for-${projectName}`, {
+      roleName: `role-lambda-polly-for-${projectName}-${region}`,
+      assumedBy: new iam.CompositePrincipal(
+        new iam.ServicePrincipal("lambda.amazonaws.com"),
+      )
+    });
+    roleLambdaPolly.addManagedPolicy({
+      managedPolicyArn: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+    });
+    roleLambdaPolly.attachInlinePolicy( 
+      new iam.Policy(this, `polly-api-invoke-policy-for-${projectName}`, {
+        statements: [apiInvokePolicy],
+      }),
+    );  
+
+    const PollyPolicy = new iam.PolicyStatement({  
+      actions: ['polly:*'],
+      resources: ['*'],
+    });
+    roleLambdaPolly.attachInlinePolicy(
+      new iam.Policy(this, 'polly-policy', {
+        statements: [PollyPolicy],
+      }),
+    );
+
+    // lambda - polly
+    const lambdaPolly = new lambda.Function(this, `lambda-polly-for-${projectName}`, {
+      description: 'lambda polly for speech translation',
+      functionName: `lambda-polly-${projectName}`,
+      handler: 'lambda_function.lambda_handler',
+      runtime: lambda.Runtime.PYTHON_3_11,
+      role: roleLambdaPolly,
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda-polly')),
+      timeout: cdk.Duration.seconds(30),
+      environment: {
+        s3_bucket: s3Bucket.bucketName,
+        path: 'https://'+distribution.domainName+'/',   
+      }
+    });
+    s3Bucket.grantReadWrite(lambdaPolly); // permission for s3
+
+    // POST method - speech (polly)
+    const speech = api.root.addResource("speech");
+    speech.addMethod('POST', new apiGateway.LambdaIntegration(lambdaPolly, {
+      passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
+      credentialsRole: role,
+      integrationResponses: [{
+        statusCode: '200',
+      }], 
+      proxy:false, 
+    }), {
+      methodResponses: [  
+        {
+          statusCode: '200',
+          responseModels: {
+            'application/json': apiGateway.Model.EMPTY_MODEL,
+          }, 
+        }
+      ]
+    }); 
+
+    // cloudfront setting for speech
+    distribution.addBehavior("/speech", new origins.RestApiOrigin(api), {
+      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
+      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
+      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    }); 
+
     // Lambda - greeting
     const lambdaGreeting = new lambda.DockerImageFunction(this, `lambda-greeting-for-${projectName}`, {
       description: 'lambda for greeting',
@@ -752,115 +861,6 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     new apigatewayv2.CfnStage(this, `api-stage-for-${projectName}`, {
       apiId: websocketapi.attrApiId,
       stageName: stage
-    }); 
-
-    // lambda - provisioning
-    const lambdaProvisioning = new lambda.Function(this, `lambda-provisioning-for-${projectName}`, {
-      description: 'lambda to earn provisioning info',
-      functionName: `lambda-provisioning-api-${projectName}`,
-      handler: 'lambda_function.lambda_handler',
-      runtime: lambda.Runtime.PYTHON_3_11,
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda-provisioning')),
-      timeout: cdk.Duration.seconds(30),
-      environment: {
-        wss_url: wss_url,
-      }
-    });
-
-    // POST method - provisioning
-    const provisioning_info = api.root.addResource("provisioning");
-    provisioning_info.addMethod('POST', new apiGateway.LambdaIntegration(lambdaProvisioning, {
-      passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
-      credentialsRole: role,
-      integrationResponses: [{
-        statusCode: '200',
-      }], 
-      proxy:false, 
-    }), {
-      methodResponses: [  
-        {
-          statusCode: '200',
-          responseModels: {
-            'application/json': apiGateway.Model.EMPTY_MODEL,
-          }, 
-        }
-      ]
-    }); 
-
-    // cloudfront setting for provisioning api
-    distribution.addBehavior("/provisioning", new origins.RestApiOrigin(api), {
-      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
-      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
-      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-    });
-
-    // Poly Role
-    const roleLambdaPolly = new iam.Role(this, `role-lambda-polly-for-${projectName}`, {
-      roleName: `role-lambda-polly-for-${projectName}-${region}`,
-      assumedBy: new iam.CompositePrincipal(
-        new iam.ServicePrincipal("lambda.amazonaws.com"),
-      )
-    });
-    roleLambdaPolly.addManagedPolicy({
-      managedPolicyArn: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
-    });
-    roleLambdaPolly.attachInlinePolicy( 
-      new iam.Policy(this, `polly-api-invoke-policy-for-${projectName}`, {
-        statements: [apiInvokePolicy],
-      }),
-    );  
-
-    const PollyPolicy = new iam.PolicyStatement({  
-      actions: ['polly:*'],
-      resources: ['*'],
-    });
-    roleLambdaPolly.attachInlinePolicy(
-      new iam.Policy(this, 'polly-policy', {
-        statements: [PollyPolicy],
-      }),
-    );
-
-    // lambda - polly
-    const lambdaPolly = new lambda.Function(this, `lambda-polly-for-${projectName}`, {
-      description: 'lambda polly for speech translation',
-      functionName: `lambda-polly-${projectName}`,
-      handler: 'lambda_function.lambda_handler',
-      runtime: lambda.Runtime.PYTHON_3_11,
-      role: roleLambdaPolly,
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda-polly')),
-      timeout: cdk.Duration.seconds(30),
-      environment: {
-        s3_bucket: s3Bucket.bucketName,
-        path: 'https://'+distribution.domainName+'/',   
-      }
-    });
-    s3Bucket.grantReadWrite(lambdaPolly); // permission for s3
-
-    // POST method - speech (polly)
-    const speech = api.root.addResource("speech");
-    speech.addMethod('POST', new apiGateway.LambdaIntegration(lambdaPolly, {
-      passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
-      credentialsRole: role,
-      integrationResponses: [{
-        statusCode: '200',
-      }], 
-      proxy:false, 
-    }), {
-      methodResponses: [  
-        {
-          statusCode: '200',
-          responseModels: {
-            'application/json': apiGateway.Model.EMPTY_MODEL,
-          }, 
-        }
-      ]
-    }); 
-
-    // cloudfront setting for speech
-    distribution.addBehavior("/speech", new origins.RestApiOrigin(api), {
-      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
-      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
-      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
     }); 
 
     // deploy components
