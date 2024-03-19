@@ -288,30 +288,37 @@ function voiceConnect(voiceEndpoint, type) {
                 let timestr = getTime(current);
                 let requestTime = datastr+' '+timestr
 
-                let previous = listMessages.get(requestId); 
-                if (previous == undefined) previous = "";
-                console.log('previosu: ', previous);                
-                console.log('previous '+previous.length+', new: '+query.length);
-                if(query !=  previous) {
-                    addSentMessage(requestId, timestr, query);
+                if(state=='completed') {
+                    let previous = listMessages.get(requestId); 
+                    if (previous == undefined) previous = "";
+                    console.log('previosu: ', previous);     
 
-                    if(protocol == 'WEBSOCKET' && state=='completed') {
-                        console.log('--> request: ', query);
-                        sendMessage({
-                            "user_id": userId,
-                            "request_id": requestId,
-                            "request_time": requestTime,        
-                            "type": "text",
-                            "body": query,
-                            "convType": conversationType
-                        })
+                    console.log('previous '+previous.length+', new: '+query.length);
+                    if(query !=  previous) {
+                        addSentMessage(requestId, timestr, query);
+    
+                        if(protocol == 'WEBSOCKET') {
+                            console.log('--> request: ', query);
+                            sendMessage({
+                                "user_id": userId,
+                                "request_id": requestId,
+                                "request_time": requestTime,        
+                                "type": "text",
+                                "body": query,
+                                "convType": conversationType
+                            })
+                        }
+                        
+                        listMessages.put(requestId, query);  
                     }
-                    
-                    listMessages.put(requestId, query);  
+                    else {
+                        console.log('ignore the dupplicated message: ', query);
+                    }
                 }
                 else {
-                    console.log('ignore the dupplicated message: ', query);
+                    addSentMessage(requestId, timestr, query);
                 }
+                
             }      
             else if(response.status == 'error') {
                 feedback.style.display = 'none';
