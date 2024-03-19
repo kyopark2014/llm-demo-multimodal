@@ -181,7 +181,9 @@ function connect(endpoint, type) {
                 addReceivedMessage(response.request_id, response.msg);  
                 
                 // play audio file
+                let page
                 const audio = document.querySelector("audio");
+                audio.src = `<audio src="https://d3c6h2zak9z18h.cloudfront.net/speech/kyopark.mp3"></audio>`
                 audio.play();                  
 
                 if (action == 'general' && response.action != 'general') { // do action
