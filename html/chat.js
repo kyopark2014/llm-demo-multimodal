@@ -214,11 +214,15 @@ function connect(endpoint, type) {
                 feedback.style.display = 'none';
 
                 if(response.msg == ' ') {
+                    if (word != "") {
+                        // playAudio(response.msg);   
+                        console.log(word);
+                    }
                     word = "";
                 }
                 else {
                     word = word + response.msg;
-                    playAudio(response.msg);   
+                    
                 }
 
                 console.log('response.msg: ', response.msg);
