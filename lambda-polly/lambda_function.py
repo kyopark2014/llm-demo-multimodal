@@ -14,8 +14,8 @@ def lambda_handler(event, context):
     text = event['text']
     voiceId = event['voiceId']
     langCode = event['langCode']
-    speechId = event['speechId']
-    key = f'speech/{speechId}.mp3' 
+    fname = event['fname']
+    key = f'speech/{fname}' 
     
     speed = 120
     ssml_text = f'<speak><prosody rate="{speed}%">{text}</prosody></speak>'

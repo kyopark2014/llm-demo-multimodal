@@ -132,6 +132,8 @@ function voicePong() {
 
 // chat session 
 sentance = "";
+words = [];
+idx_word = 0;
 function connect(endpoint, type) {
     const ws = new WebSocket(endpoint);
 
@@ -182,8 +184,8 @@ function connect(endpoint, type) {
                    
                 addReceivedMessage(response.request_id, response.msg);  
                 
-                // play audio file
-                // playAudio(response.msg)                                
+                // playAudio(response.msg);
+                playWords(words);                       
 
                 if (action == 'general' && response.action != 'general') { // do action
                     action = response.action                      
@@ -208,15 +210,17 @@ function connect(endpoint, type) {
                 feedback.style.display = 'inline';
                 // feedback.innerHTML = '<i>typing a message...</i>'; 
                 sentance = "";
-                word = "";
+                words = [];
+                idx_word = 0;
             }
             else if(response.status == 'proceeding') {
                 feedback.style.display = 'none';
 
                 if(response.msg == ' ') {
                     if (word != "") {
-                        playAudio(response.msg);   
+                        // playAudio(response.msg);                           
                         console.log(word);
+                        generateVoiceWord(word);
                     }
                     word = "";
                 }
@@ -619,6 +623,51 @@ function addSentMessageForSummary(requestId, timestr, text) {
     index++;
 }  
 
+function playWords(words) {    
+    const audio = document.querySelector("audio");
+
+    for(let i=0;i<words.length;i++) {
+        audio.src = words[i];
+        audio.load();
+        audio.play();  
+    }    
+}
+
+function generateVoiceWord(text) {
+    const uri = "speech";
+    const xhr = new XMLHttpRequest();
+
+    let fname = userId+'_'+idx_word+'.mp3';
+    let voiceId = 'Seoyeon';
+    // voiceId: 'Aditi'|'Amy'|'Astrid'|'Bianca'|'Brian'|'Camila'|'Carla'|'Carmen'|'Celine'|'Chantal'|'Conchita'|'Cristiano'|'Dora'|'Emma'|'Enrique'|'Ewa'|'Filiz'|'Gabrielle'|'Geraint'|'Giorgio'|'Gwyneth'|'Hans'|'Ines'|'Ivy'|'Jacek'|'Jan'|'Joanna'|'Joey'|'Justin'|'Karl'|'Kendra'|'Kevin'|'Kimberly'|'Lea'|'Liv'|'Lotte'|'Lucia'|'Lupe'|'Mads'|'Maja'|'Marlene'|'Mathieu'|'Matthew'|'Maxim'|'Mia'|'Miguel'|'Mizuki'|'Naja'|'Nicole'|'Olivia'|'Penelope'|'Raveena'|'Ricardo'|'Ruben'|'Russell'|'Salli'|'Seoyeon'|'Takumi'|'Tatyana'|'Vicki'|'Vitoria'|'Zeina'|'Zhiyu'|'Aria'|'Ayanda'|'Arlet'|'Hannah'|'Arthur'|'Daniel'|'Liam'|'Pedro'|'Kajal'|'Hiujin'|'Laura'|'Elin'|'Ida'|'Suvi'|'Ola'|'Hala'|'Andres'|'Sergio'|'Remi'|'Adriano'|'Thiago'|'Ruth'|'Stephen'|'Kazuha'|'Tomoko'
+
+    let langCode = 'ko-KR';  // ko-KR en-US(영어)) ja-JP(일본어)) cmn-CN(중국어)) sv-SE(스페인어))
+
+    xhr.open("POST", uri, true);
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            response = JSON.parse(xhr.responseText);
+            console.log("response: ", response);
+            
+            words.push('./speech/'+fname);
+            idx_word++;
+        }
+    };
+    
+    var requestObj = {
+        "text": text,
+        "voiceId": voiceId,
+        "langCode": langCode,
+        "fname": fname
+    }
+    console.log("request: " + JSON.stringify(requestObj));
+
+    var blob = new Blob([JSON.stringify(requestObj)], {type: 'application/json'});
+
+    xhr.send(blob);            
+}
+
+
 function playAudio(text) {
     const uri = "speech";
     const xhr = new XMLHttpRequest();
@@ -636,7 +685,8 @@ function playAudio(text) {
             console.log("response: ", response);
             
             const audio = document.querySelector("audio");
-            audio.src = `./speech/kyopark.mp3`
+            // audio.src = `./speech/kyopark.mp3`
+            audio.src = './speech/'+userid+'.mp3'
             audio.load();
             audio.play();  
         }
