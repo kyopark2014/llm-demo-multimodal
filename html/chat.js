@@ -181,9 +181,10 @@ function connect(endpoint, type) {
                 addReceivedMessage(response.request_id, response.msg);  
                 
                 // play audio file
-                let page
+                playAudio(text)
+
                 const audio = document.querySelector("audio");
-                audio.src = `https://d3c6h2zak9z18h.cloudfront.net/speech/kyopark.mp3`
+                audio.src = `./speech/kyopark.mp3`
                 audio.play();                  
 
                 if (action == 'general' && response.action != 'general') { // do action
@@ -420,7 +421,6 @@ for (i=0;i<maxMsgItems;i++) {
 
 calleeName.textContent = "Chatbot";  
 calleeId.textContent = "AWS";
-
 
 if(langstate=='korean') {
     addNotifyMessage("Amazon Bedrock을 이용하여 채팅을 시작합니다.");
