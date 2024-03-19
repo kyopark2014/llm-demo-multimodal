@@ -181,7 +181,15 @@ function connect(endpoint, type) {
                 addReceivedMessage(response.request_id, response.msg);  
                 
                 // play audio file
+                location = 'https://d3c6h2zak9z18h.cloudfront.net/speech/kyopark.mp3';
                 playAudio(response.msg);
+                var audio = new Audio(location);
+                audio.load();
+                audio.play();
+
+                console.log('afplay!')
+                os.system('afplay '+location)
+
 
                 if (action == 'general' && response.action != 'general') { // do action
                     action = response.action                      
