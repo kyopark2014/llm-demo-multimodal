@@ -635,7 +635,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     s3Bucket.grantReadWrite(lambdaPolly); // permission for s3
 
     // POST method - speech (polly)
-    const polySpeech = api.root.addResource("speech");
+  /*  const polySpeech = api.root.addResource("speech");
     polySpeech.addMethod('POST', new apiGateway.LambdaIntegration(lambdaPolly, {
       passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
       credentialsRole: role,
@@ -659,7 +659,34 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
       allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
       viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    });  */
+
+    // POST method - speech
+    const polySpeech = api.root.addResource("speech");
+    polySpeech.addMethod('POST', new apiGateway.LambdaIntegration(lambdaPolly, {
+      passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
+      credentialsRole: role,
+      integrationResponses: [{
+        statusCode: '200',
+      }], 
+      proxy:false, 
+    }), {
+      methodResponses: [  
+        {
+          statusCode: '200',
+          responseModels: {
+            'application/json': apiGateway.Model.EMPTY_MODEL,
+          }, 
+        }
+      ]
     }); 
+
+    // cloudfront setting for api gateway    
+    distribution.addBehavior("/speech", new origins.RestApiOrigin(api), {
+      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
+      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
+      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    });
 
     // Lambda - greeting
     const lambdaGreeting = new lambda.DockerImageFunction(this, `lambda-greeting-for-${projectName}`, {
