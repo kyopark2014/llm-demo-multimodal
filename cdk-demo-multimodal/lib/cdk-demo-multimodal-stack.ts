@@ -805,7 +805,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       managedPolicyArn: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
     });
     roleLambdaPolly.attachInlinePolicy( 
-      new iam.Policy(this, `api-invoke-policy-for-${projectName}`, {
+      new iam.Policy(this, `polly-api-invoke-policy-for-${projectName}`, {
         statements: [apiInvokePolicy],
       }),
     );  
