@@ -629,7 +629,6 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(30),
       environment: {
         s3_bucket: s3Bucket.bucketName,
-       // path: 'https://'+distribution.domainName+'/',   
       }
     });
     s3Bucket.grantReadWrite(lambdaPolly); // permission for s3

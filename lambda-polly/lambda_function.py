@@ -7,7 +7,6 @@ polly_client = boto3.client('polly')
 s3_client = boto3.client('s3')
 
 s3_bucket = os.environ.get('s3_bucket') # bucket name
-path = os.environ.get('path') # cloudfront url
 
 def lambda_handler(event, context):
     print('event: ', event)
@@ -46,7 +45,8 @@ def lambda_handler(event, context):
     return {
         "isBase64Encoded": False,
         'statusCode': 200,
-        'body': json.dumps({            
-            "location": f'{path}/speech/{speechId}.mp3' 
+        'body': json.dumps({      
+            "bucket": s3_bucket, 
+            "key": key
         })
     }    
