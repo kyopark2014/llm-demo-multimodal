@@ -181,10 +181,7 @@ function connect(endpoint, type) {
                 addReceivedMessage(response.request_id, response.msg);  
                 
                 // play audio file
-                playAudio(response.msg)
-                const audio = document.querySelector("audio");
-                audio.src = `./speech/kyopark.mp3`
-                audio.play();                  
+                playAudio(response.msg)                                
 
                 if (action == 'general' && response.action != 'general') { // do action
                     action = response.action                      
@@ -619,9 +616,10 @@ function playAudio(text) {
             response = JSON.parse(xhr.responseText);
             console.log("response: ", response);
             
-            // console.log("response: " + JSON.stringify(response));            
-            // const body = JSON.parse(response.body);
-            // console.log('body: ', body);
+            const audio = document.querySelector("audio");
+            audio.src = `./speech/kyopark.mp3`
+            audio.load();
+            audio.play();  
         }
     };
     
