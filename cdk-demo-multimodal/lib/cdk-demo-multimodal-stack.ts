@@ -838,7 +838,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
 
     // POST method - speech (polly)
     const speech = api.root.addResource("speech");
-    speech.addMethod('POST', new apiGateway.LambdaIntegration(lambdaProvisioning, {
+    speech.addMethod('POST', new apiGateway.LambdaIntegration(lambdaPolly, {
       passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
       credentialsRole: role,
       integrationResponses: [{
