@@ -794,17 +794,47 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
     });
 
+    // Poly Role
+    const roleLambdaPolly = new iam.Role(this, `role-lambda-polly-for-${projectName}`, {
+      roleName: `role-lambda-polly-for-${projectName}-${region}`,
+      assumedBy: new iam.CompositePrincipal(
+        new iam.ServicePrincipal("lambda.amazonaws.com"),
+      )
+    });
+    roleLambdaPolly.addManagedPolicy({
+      managedPolicyArn: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+    });
+    roleLambdaPolly.attachInlinePolicy( 
+      new iam.Policy(this, `api-invoke-policy-for-${projectName}`, {
+        statements: [apiInvokePolicy],
+      }),
+    );  
+
+    const PollyPolicy = new iam.PolicyStatement({  
+      actions: ['polly:*'],
+      resources: ['*'],
+    });
+    roleLambdaPolly.attachInlinePolicy(
+      new iam.Policy(this, 'polly-policy', {
+        statements: [PollyPolicy],
+      }),
+    );
+
     // lambda - polly
     const lambdaPolly = new lambda.Function(this, `lambda-polly-for-${projectName}`, {
-      description: 'lambda for speech using polly',
+      description: 'lambda polly for speech translation',
       functionName: `lambda-polly-${projectName}`,
       handler: 'lambda_function.lambda_handler',
       runtime: lambda.Runtime.PYTHON_3_11,
+      role: roleLambdaPolly,
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda-polly')),
       timeout: cdk.Duration.seconds(30),
       environment: {
+        s3_bucket: s3Bucket.bucketName,
+        path: 'https://'+distribution.domainName+'/',   
       }
     });
+    s3Bucket.grantReadWrite(lambdaPolly); // permission for s3
 
     // POST method - speech (polly)
     const speech = api.root.addResource("speech");
