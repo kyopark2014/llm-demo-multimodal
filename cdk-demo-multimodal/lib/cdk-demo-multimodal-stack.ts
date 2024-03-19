@@ -857,11 +857,11 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     }); 
 
     // cloudfront setting for speech
-    distribution.addBehavior("/speech", new origins.RestApiOrigin(api), {
+  /*  distribution.addBehavior("/speech", new origins.RestApiOrigin(api), {
       cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
       allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
       viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-    });
+    }); */
 
     // deploy components
     new componentDeployment(scope, `deployment-for-${projectName}`, websocketapi.attrApiId)    
