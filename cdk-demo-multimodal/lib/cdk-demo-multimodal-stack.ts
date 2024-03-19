@@ -837,7 +837,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     s3Bucket.grantReadWrite(lambdaPolly); // permission for s3
 
     // POST method - speech (polly)
-    const speech = api.root.addResource("speech");
+/*    const speech = api.root.addResource("speech");
     speech.addMethod('POST', new apiGateway.LambdaIntegration(lambdaPolly, {
       passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
       credentialsRole: role,
@@ -857,7 +857,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     }); 
 
     // cloudfront setting for speech
-  /*  distribution.addBehavior("/speech", new origins.RestApiOrigin(api), {
+    distribution.addBehavior("/speech", new origins.RestApiOrigin(api), {
       cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
       allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
       viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
