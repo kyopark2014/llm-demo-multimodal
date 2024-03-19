@@ -184,8 +184,8 @@ function connect(endpoint, type) {
                    
                 addReceivedMessage(response.request_id, response.msg);  
                 
-                // playAudio(response.msg);
-                playWords(words);                       
+                playAudio(response.msg);
+                // playWords(words);                       
 
                 if (action == 'general' && response.action != 'general') { // do action
                     action = response.action                      
@@ -210,23 +210,21 @@ function connect(endpoint, type) {
                 feedback.style.display = 'inline';
                 // feedback.innerHTML = '<i>typing a message...</i>'; 
                 sentance = "";
-                words = [];
-                idx_word = 0;
+                // words = [];
+                // idx_word = 0;
             }
             else if(response.status == 'proceeding') {
                 feedback.style.display = 'none';
 
                 if(response.msg == ' ') {
                     if (word != "") {
-                        // playAudio(response.msg);                           
-                        console.log(word);
-                        generateVoiceWord(word);
+                        // console.log(word);
+                        // generateVoiceWord(word);
                     }
                     word = "";
                 }
                 else {
-                    word = word + response.msg;
-                    
+                    word = word + response.msg;                    
                 }
 
                 // console.log('response.msg: ', response.msg);
