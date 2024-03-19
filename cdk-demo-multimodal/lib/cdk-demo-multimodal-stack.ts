@@ -844,7 +844,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     }); 
 
     // deploy components
-    new componentDeployment(scope, `deployment-for-${projectName}`, api, lambdaPolly, role, websocketapi.attrApiId)    
+    new componentDeployment(scope, `deployment-for-${projectName}`, api.attrApiId, lambdaPolly, role, websocketapi.attrApiId)    
 
     ///////////////////////////////////////////
     // Voice Stream
