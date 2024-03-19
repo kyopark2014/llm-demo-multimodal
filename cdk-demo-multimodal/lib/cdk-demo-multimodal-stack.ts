@@ -593,7 +593,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     });
 
     // Poly Role
-  /*  const roleLambdaPolly = new iam.Role(this, `role-lambda-polly-for-${projectName}`, {
+    const roleLambdaPolly = new iam.Role(this, `role-lambda-polly-for-${projectName}`, {
       roleName: `role-lambda-polly-for-${projectName}-${region}`,
       assumedBy: new iam.CompositePrincipal(
         new iam.ServicePrincipal("lambda.amazonaws.com"),
@@ -616,7 +616,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       new iam.Policy(this, 'polly-policy', {
         statements: [PollyPolicy],
       }),
-    ); */
+    ); 
 
     // lambda - polly
     const lambdaPolly = new lambda.Function(this, `lambda-polly-for-${projectName}`, {
@@ -624,7 +624,7 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
       functionName: `lambda-polly-${projectName}`,
       handler: 'lambda_function.lambda_handler',
       runtime: lambda.Runtime.PYTHON_3_11,
-      // role: roleLambdaPolly,
+      role: roleLambdaPolly,
       code: lambda.Code.fromAsset(path.join(__dirname, '../../lambda-polly')),
       timeout: cdk.Duration.seconds(30),
       environment: {
@@ -635,8 +635,8 @@ export class CdkDemoMultimodalStack extends cdk.Stack {
     s3Bucket.grantReadWrite(lambdaPolly); // permission for s3
 
     // POST method - speech (polly)
-    const speech = api.root.addResource("speech");
-    speech.addMethod('POST', new apiGateway.LambdaIntegration(lambdaPolly, {
+    const polySpeech = api.root.addResource("speech");
+    polySpeech.addMethod('POST', new apiGateway.LambdaIntegration(lambdaPolly, {
       passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
       credentialsRole: role,
       integrationResponses: [{
